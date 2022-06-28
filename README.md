@@ -25,7 +25,16 @@ Trim Whitespace operates on three different types of whitespace, with three diff
 
 ---
 
-### Settings
+## Commands
+
+* **Trim whitespace in document** trims all whitespace in the active document, according to the settings below
+* **Trim whitespace in selection** trims all whitespace in the selected region in the active document, according to the settings below
+
+Trim Whitespace also adds a ribbon button to trim document whitespace, though you can **hold shift** to trim whitespace in selection instead.
+
+---
+
+## Settings
 
 |       Feature        |                                   Description                                   |
 | -------------------- | ------------------------------------------------------------------------------- |
