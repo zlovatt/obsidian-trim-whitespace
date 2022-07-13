@@ -20,11 +20,11 @@ function _trimLeadingLines(str: string): string {
 
 /** Multiple */
 function _trimMultipleSpaces(str: string): string {
-	return str.replace(/(?<!^\s*)( ){2,}(?!\s*$)/gm, " ");
+	return str.replace(/(?<!(\||^)\s*)( ){2,}(?!\s*(\||$))/gm, " ");
 }
 
 function _trimMultipleTabs(str: string): string {
-	return str.replace(/(?<!^\s*)(\t){2,}(?!\s*$)/gm, "\t");
+	return str.replace(/(?<!(\||^)\s*)(\t){2,}(?!\s*(\||$))/gm, "\t");
 }
 
 function _trimMultipleLines(str: string): string {
