@@ -53,6 +53,13 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimMultipleLines: false,
 };
 
+/**
+ * Trims text according to settings
+ *
+ * @param text    Text to trim
+ * @param options Preferences to control trimming
+ * @return        Trimmed string
+ */
 function trimText(text: string, options: TrimWhitespaceSettings): string {
 	let trimmed = text;
 	const CHAR_SPACE = " ";
@@ -147,6 +154,11 @@ export default class TrimWhitespace extends Plugin {
 		this.addSettingTab(new TrimWhitespaceSettingTab(this.app, this));
 	}
 
+	/**
+	 * Gets the active editor, if present
+	 *
+	 * @return Active editor, or null
+	 */
 	_getEditor(): Editor | null {
 		const markdownView =
 			this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -158,6 +170,11 @@ export default class TrimWhitespace extends Plugin {
 		return markdownView.editor;
 	}
 
+	/**
+	 * Initializes the auto-trim debouncer, with a given timeout frequency
+	 *
+	 * @param delaySeconds Timeout value debounce with
+	 */
 	_initializeDebouncer(delaySeconds: number): void {
 		this.debouncedTrim = debounce(
 			this.trimDocument,
@@ -166,6 +183,11 @@ export default class TrimWhitespace extends Plugin {
 		);
 	}
 
+	/**
+	 * Enables or disables the listener
+	 *
+	 * @param toggle Whether to enabled or disable the listener
+	 */
 	_toggleListenerEvent(toggle: boolean): void {
 		if (!this.debouncedTrim) {
 			new Notice("Trim Whitespace: Can't start auto trimmer!");
@@ -181,6 +203,9 @@ export default class TrimWhitespace extends Plugin {
 		}
 	}
 
+	/**
+	 * Trims whitespace in selected text
+	 */
 	trimSelection(): void {
 		const editor = this._getEditor();
 
@@ -215,6 +240,9 @@ export default class TrimWhitespace extends Plugin {
 		);
 	}
 
+	/**
+	 * Trims whitespace in document
+	 */
 	trimDocument(): void {
 		const editor = this._getEditor();
 
@@ -252,6 +280,9 @@ export default class TrimWhitespace extends Plugin {
 		);
 	}
 
+	/**
+	 * Loads settings from disk
+	 */
 	async loadSettings() {
 		this.settings = Object.assign(
 			{},
@@ -260,6 +291,9 @@ export default class TrimWhitespace extends Plugin {
 		);
 	}
 
+	/**
+	 * Saves settings to disk
+	 */
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
