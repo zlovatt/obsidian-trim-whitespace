@@ -9,34 +9,13 @@ import {
 	PluginSettingTab,
 	Setting,
 } from "obsidian";
+
 import {
-	_trimTrailingCharacters,
-	_trimTrailingLines,
-	_trimLeadingCharacters,
-	_trimLeadingLines,
-	_trimMultipleSpaces,
-	_trimMultipleTabs,
-	_trimMultipleLines,
-} from "./utils/trimmers";
+	buildTokenReplaceMap,
+	replaceSwappedTokens,
+} from "./utils/searchReplaceTokens";
 
-interface TrimWhitespaceSettings {
-	AutoTrimDocument: boolean;
-	AutoTrimTimeout: number;
-
-	SkipCodeBlocks: boolean;
-
-	TrimTrailingSpaces: boolean;
-	TrimLeadingSpaces: boolean;
-	TrimMultipleSpaces: boolean;
-
-	TrimTrailingTabs: boolean;
-	TrimLeadingTabs: boolean;
-	TrimMultipleTabs: boolean;
-
-	TrimTrailingLines: boolean;
-	TrimLeadingLines: boolean;
-	TrimMultipleLines: boolean;
-}
+import trimText from "./utils/trimText";
 
 const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	AutoTrimDocument: true,
@@ -56,136 +35,6 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimLeadingLines: false,
 	TrimMultipleLines: false,
 };
-
-/**
- * Cludgey function to:
- * 		- exec regexp on a string
- *    - swapping out matches with incremented prefix
- *    - keep track of swaps
- *    - return replaced string and terms
- *
- * @param text-   Text to search and replace
- * @param prefix  Prefix incrementer should look for
- * @param regExps Collection of regular expressions to swap
- * @return        Replaced text with found terms
- */
-function collectReplaceRegExps(
-	text: string,
-	prefix: string,
-	regExps: RegExp[]
-): { text: string; terms: string[] } {
-	const textCollection = {
-		text: text.toString(),
-		terms: [] as string[],
-	};
-
-	regExps.forEach((regExp) => {
-		let replaced = regExp.exec(textCollection.text);
-
-		if (!replaced) {
-			return;
-		}
-
-		while (replaced) {
-			const term = replaced[0];
-			textCollection.terms.push(term);
-
-			const replacedIndex = replaced.index;
-			const tokenCount = textCollection.terms.length - 1;
-			const token = prefix + tokenCount.toString();
-
-			textCollection.text =
-				textCollection.text.slice(0, replacedIndex) +
-				token +
-				textCollection.text.slice(replacedIndex + term.length);
-			replaced = regExp.exec(textCollection.text);
-		}
-	});
-
-	return textCollection;
-}
-
-/**
- * Replace iteratable swapped tokens in text with matching terms
- *
- * @param text   Text to swap tokens in
- * @param prefix Search term prefix string
- * @param terms  Terms to swap
- * @return       Swapped token
- */
-function replaceSwappedTokens(
-	text: string,
-	prefix: string,
-	terms: string[]
-): string {
-	terms.forEach((term, ii) => {
-		const token = prefix + ii.toString();
-		text = text.replace(token, term);
-	});
-
-	return text;
-}
-
-/**
- * Trims text according to settings
- *
- * @param text    Text to trim
- * @param options Preferences to control trimming
- * @return        Trimmed string
- */
-function trimText(text: string, options: TrimWhitespaceSettings): string {
-	let trimmed = text;
-	const CHAR_SPACE = " ";
-	const CHAR_TAB = "\t";
-
-	if (options.TrimTrailingSpaces || options.TrimTrailingTabs) {
-		const trailingCharacters = [];
-
-		if (options.TrimTrailingSpaces) {
-			trailingCharacters.push(CHAR_SPACE);
-		}
-		if (options.TrimTrailingTabs) {
-			trailingCharacters.push(CHAR_TAB);
-		}
-
-		trimmed = _trimTrailingCharacters(trimmed, trailingCharacters);
-	}
-
-	if (options.TrimTrailingLines) {
-		trimmed = _trimTrailingLines(trimmed);
-	}
-
-	if (options.TrimLeadingSpaces || options.TrimLeadingTabs) {
-		const leadingCharacters = [];
-
-		if (options.TrimLeadingSpaces) {
-			leadingCharacters.push(CHAR_SPACE);
-		}
-		if (options.TrimLeadingTabs) {
-			leadingCharacters.push(CHAR_TAB);
-		}
-
-		trimmed = _trimLeadingCharacters(trimmed, leadingCharacters);
-	}
-
-	if (options.TrimLeadingLines) {
-		trimmed = _trimLeadingLines(trimmed);
-	}
-
-	if (options.TrimMultipleSpaces) {
-		trimmed = _trimMultipleSpaces(trimmed);
-	}
-
-	if (options.TrimMultipleTabs) {
-		trimmed = _trimMultipleTabs(trimmed);
-	}
-
-	if (options.TrimMultipleLines) {
-		trimmed = _trimMultipleLines(trimmed);
-	}
-
-	return trimmed;
-}
 
 export default class TrimWhitespace extends Plugin {
 	settings: TrimWhitespaceSettings;
@@ -292,7 +141,7 @@ export default class TrimWhitespace extends Plugin {
 		const skipCodeBlocks = this.settings.SkipCodeBlocks;
 
 		if (skipCodeBlocks) {
-			const swapData = collectReplaceRegExps(
+			const swapData = buildTokenReplaceMap(
 				text,
 				this.CODE_SWAP_PREFIX,
 				this.CODE_SWAP_REGEX
@@ -449,7 +298,9 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 						const textAsNumber = parseFloat(value);
 
 						if (isNaN(textAsNumber)) {
-							new Notice("Trim Whitespace: Enter a valid number!");
+							new Notice(
+								"Trim Whitespace: Enter a valid number!"
+							);
 							return;
 						}
 

@@ -78,12 +78,64 @@ function _trimMultipleLines(str: string): string {
 	return str.replace(/^\s+(?=(\n|\r|$))/gm, "");
 }
 
-export {
-	_trimTrailingCharacters,
-	_trimTrailingLines,
-	_trimLeadingCharacters,
-	_trimLeadingLines,
-	_trimMultipleSpaces,
-	_trimMultipleTabs,
-	_trimMultipleLines,
-};
+
+/**
+ * Trims text according to settings
+ *
+ * @param text    Text to trim
+ * @param options Preferences to control trimming
+ * @return        Trimmed string
+ */
+ export default function trimText(text: string, options: TrimWhitespaceSettings): string {
+	let trimmed = text;
+	const CHAR_SPACE = " ";
+	const CHAR_TAB = "\t";
+
+	if (options.TrimTrailingSpaces || options.TrimTrailingTabs) {
+		const trailingCharacters = [];
+
+		if (options.TrimTrailingSpaces) {
+			trailingCharacters.push(CHAR_SPACE);
+		}
+		if (options.TrimTrailingTabs) {
+			trailingCharacters.push(CHAR_TAB);
+		}
+
+		trimmed = _trimTrailingCharacters(trimmed, trailingCharacters);
+	}
+
+	if (options.TrimTrailingLines) {
+		trimmed = _trimTrailingLines(trimmed);
+	}
+
+	if (options.TrimLeadingSpaces || options.TrimLeadingTabs) {
+		const leadingCharacters = [];
+
+		if (options.TrimLeadingSpaces) {
+			leadingCharacters.push(CHAR_SPACE);
+		}
+		if (options.TrimLeadingTabs) {
+			leadingCharacters.push(CHAR_TAB);
+		}
+
+		trimmed = _trimLeadingCharacters(trimmed, leadingCharacters);
+	}
+
+	if (options.TrimLeadingLines) {
+		trimmed = _trimLeadingLines(trimmed);
+	}
+
+	if (options.TrimMultipleSpaces) {
+		trimmed = _trimMultipleSpaces(trimmed);
+	}
+
+	if (options.TrimMultipleTabs) {
+		trimmed = _trimMultipleTabs(trimmed);
+	}
+
+	if (options.TrimMultipleLines) {
+		trimmed = _trimMultipleLines(trimmed);
+	}
+
+	return trimmed;
+}
