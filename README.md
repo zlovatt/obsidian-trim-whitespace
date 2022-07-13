@@ -3,13 +3,13 @@
 <!-- Aspriational stuff below ⬇ -->
 <!-- [![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?color=7e6ad6&labelColor=34208c&label=Obsidian%20Downloads&query=$['obsidian-trim-whitespace'].downloads&url=https://raw.githubusercontent.com/obsidianmd/obsidian-releases/master/community-plugin-stats.json&)](obsidian://show-plugin?id=obsidian-trim-whitespace) ![GitHub stars](https://img.shields.io/github/stars/zlovatt/obsidian-trim-whitespace?style=flat) -->
 
-Trims unnecessary whitespace from your Obsidian documents.
+Trim Whitespace trims unnecessary blank characters from your Obsidian documents. This is a common feature in code editing software, and mostly exists to pare down irksome document clutter.
 
 ---
 
 ## Features
 
-Trim Whitespace operates on three different types of whitespace, with three different targets.
+The plugin operates on three different types of whitespace, with three different targets.
 
 ### Whitespace Types
 
@@ -56,13 +56,13 @@ Trim groups of whitespace (2 or more consecutive **inline** spaces/tabs, or **co
 * **Trim whitespace in document** trims all whitespace in the active document, according to the settings below
 * **Trim whitespace in selection** trims all whitespace in the selected region in the active document, according to the settings below
 
-Trim Whitespace also adds a ribbon button to trim document whitespace, though you can **hold shift** to trim whitespace in selection instead.
+Trim Whitespace also adds a ribbon button to trim document whitespace. Hold **shift** when clicking the button to trim whitespace in selection instead.
 
 ---
 
 ## Settings
 
-|       Feature        |                                   Description                                   |
+|         Name         |                                   Description                                   |
 | -------------------- | ------------------------------------------------------------------------------- |
 | Auto-Trim            | **Automatically trim document** when modified, according to the settings below. |
 | Auto-Trim Delay      | Time to wait **in seconds** before auto-trimming.                               |
@@ -86,7 +86,6 @@ To install, either:
 1. Install manually with the zip in [Releases](http://github.com/zlovatt/obsidian-trim-whitespace/releases), or (hopefully eventually)
 2. ~~Download from the [Obsidian Community Plugin library](obsidian://show-plugin?id=obsidian-trim-whitespace)~~
 
-
 ---
 
 ### Known Bugs
@@ -97,4 +96,6 @@ To install, either:
 
 ### Credit Due
 
-Inspired by [@Benature](https://github.com/Benature)'s [obsidian-text-format](https://github.com/Benature/obsidian-text-format).
+- Community interest sparked by [this forum post](https://forum.obsidian.md/t/trim-trailing-whitespace/17047)
+- Plugin basics grokked from [@Benature](https://github.com/Benature)'s [obsidian-text-format](https://github.com/Benature/obsidian-text-format)
+- Lots of support from the [Obsidian Community](https://obsidian.md/community) Discord server
