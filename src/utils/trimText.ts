@@ -18,7 +18,7 @@ function _trimTrailingCharacters(str: string, chars: string[]): string {
  * @param str Text to trim
  * @return    Trimmed text
  */
- function _trimTrailingLines(str: string): string {
+function _trimTrailingLines(str: string): string {
 	return str.trimEnd();
 }
 
@@ -78,7 +78,6 @@ function _trimMultipleLines(str: string): string {
 	return str.replace(/^\s+(?=(\n|\r|$))/gm, "");
 }
 
-
 /**
  * Trims text according to settings
  *
@@ -86,7 +85,10 @@ function _trimMultipleLines(str: string): string {
  * @param options Preferences to control trimming
  * @return        Trimmed string
  */
- export default function trimText(text: string, options: TrimWhitespaceSettings): string {
+export default function trimText(
+	text: string,
+	options: TrimWhitespaceSettings
+): string {
 	let trimmed = text;
 	const CHAR_SPACE = " ";
 	const CHAR_TAB = "\t";
