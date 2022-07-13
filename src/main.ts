@@ -1,5 +1,7 @@
 import {
 	App,
+	debounce,
+	Debouncer,
 	Editor,
 	MarkdownView,
 	Notice,
@@ -104,6 +106,7 @@ function trimText(text: string, options: TrimWhitespaceSettings): string {
 }
 
 export default class TrimWhitespace extends Plugin {
+	DEBOUNCE_TIMER = 2500;
 	settings: TrimWhitespaceSettings;
 
 	async onload() {
@@ -152,14 +155,20 @@ export default class TrimWhitespace extends Plugin {
 		return markdownView.editor;
 	}
 
+	debouncedTrim: Debouncer<[]> = debounce(
+		this.trimDocument,
+		this.DEBOUNCE_TIMER,
+		true
+	);
+
 	_toggleListenerEvent(toggle: boolean): void {
 		if (toggle) {
 			this.registerEvent(
-				this.app.metadataCache.on("changed", this.trimDocument, this)
+				this.app.metadataCache.on("changed", this.debouncedTrim, this)
 				// this.app.vault.on("modify", this.trimDocument, this)
 			);
 		} else {
-			this.app.metadataCache.off("changed", this.trimDocument);
+			this.app.metadataCache.off("changed", this.debouncedTrim);
 			// this.app.vault.off("modify", this.trimDocument);
 		}
 	}
