@@ -29,4 +29,4 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Initial commit!
 
 [Unreleased]: https://github.com/zlovatt/obsidian-trim-whitespace/compare/master...develop
-[v0.1.0]: https://github.com/zlovatt/obsidian-trim-whitespace/compare/9342c0e...v0.1.0
+[v0.1.0]: https://github.com/zlovatt/obsidian-trim-whitespace/compare/a53bdb3...v0.1.0
