@@ -174,12 +174,10 @@ export default class TrimWhitespace extends Plugin {
 
 		if (toggle) {
 			this.registerEvent(
-				this.app.metadataCache.on("changed", this.debouncedTrim, this)
-				// this.app.vault.on("modify", this.trimDocument, this)
+				this.app.workspace.on("editor-change", this.debouncedTrim, this)
 			);
 		} else {
-			this.app.metadataCache.off("changed", this.debouncedTrim);
-			// this.app.vault.off("modify", this.trimDocument);
+			this.app.workspace.off("editor-change", this.debouncedTrim)
 		}
 	}
 
