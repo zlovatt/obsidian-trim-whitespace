@@ -21,6 +21,7 @@ import {
 
 interface TrimWhitespaceSettings {
 	TrimOnSave: boolean;
+	AutoTrimTimeout: number;
 
 	TrimTrailingSpaces: boolean;
 	TrimLeadingSpaces: boolean;
@@ -37,6 +38,7 @@ interface TrimWhitespaceSettings {
 
 const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimOnSave: true,
+	AutoTrimTimeout: 2.5,
 
 	TrimTrailingSpaces: true,
 	TrimLeadingSpaces: false,
@@ -106,13 +108,14 @@ function trimText(text: string, options: TrimWhitespaceSettings): string {
 }
 
 export default class TrimWhitespace extends Plugin {
-	DEBOUNCE_TIMER = 2500;
 	settings: TrimWhitespaceSettings;
+	debouncedTrim: Debouncer<[]>;
 
 	async onload() {
 		await this.loadSettings();
 
 		// Register event to trim on save, based on option
+		this._initializeDebouncer(this.settings.AutoTrimTimeout);
 		this._toggleListenerEvent(this.settings.TrimOnSave);
 
 		// Left ribbon button
@@ -155,13 +158,20 @@ export default class TrimWhitespace extends Plugin {
 		return markdownView.editor;
 	}
 
-	debouncedTrim: Debouncer<[]> = debounce(
-		this.trimDocument,
-		this.DEBOUNCE_TIMER,
-		true
-	);
+	_initializeDebouncer(delaySeconds: number): void {
+		this.debouncedTrim = debounce(
+			this.trimDocument,
+			delaySeconds * 1000,
+			true
+		);
+	}
 
 	_toggleListenerEvent(toggle: boolean): void {
+		if (!this.debouncedTrim) {
+			new Notice("Trim Whitespace: Can't start auto trimmer!");
+			return;
+		}
+
 		if (toggle) {
 			this.registerEvent(
 				this.app.metadataCache.on("changed", this.debouncedTrim, this)
@@ -287,6 +297,31 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 
 						this.plugin._toggleListenerEvent(value);
+					});
+			});
+
+			new Setting(containerEl)
+			.setName("Auto-Trim Delay (seconds)")
+			.setDesc(
+				"Seconds to wait before auto-trimming."
+			)
+			.addText((value) => {
+				value
+					.setValue(this.plugin.settings.AutoTrimTimeout.toString())
+					.onChange(async (value) => {
+						const textAsNumber = parseFloat(value);
+
+						if (isNaN(textAsNumber)) {
+							new Notice("Trim Whitespace: Enter a valid number!");
+							return;
+						}
+
+						this.plugin.settings.AutoTrimTimeout = textAsNumber;
+						await this.plugin.saveSettings();
+
+						this.plugin._toggleListenerEvent(false);
+						this.plugin._initializeDebouncer(textAsNumber);
+						this.plugin._toggleListenerEvent(true);
 					});
 			});
 
