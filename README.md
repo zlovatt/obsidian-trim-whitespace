@@ -21,7 +21,7 @@ Trim Whitespace operates on three different types of whitespace, with three diff
 
 1. **Trailing** – Trim whitespace at the **end** of each line, or open document.
 2. **Leading** – Trim whitespace at the **start** of each line, or open document.
-3. **Multiple** - Trim groups of whitespace (2 or more consecutive spaces, tabs, or lines)
+3. **Multiple** - Trim groups of whitespace (2 or more consecutive inline spaces/tabs, or consecutive lines)
 
 ---
 
@@ -45,8 +45,8 @@ Trim Whitespace also adds a ribbon button to trim document whitespace, though yo
 | Trim Leading Spaces  | Trim **spaces** at the **start of each line**.                                  |
 | Trim Leading Tabs    | Trim **tabs** at the **start of each line**.                                    |
 | Trim Leading Lines   | Trim **lines** at the **start of the document**.                                |
-| Trim Multiple Spaces | Trim **groups** of **multiple spaces**.                                         |
-| Trim Multiple Tabs   | Trim **groups** of **multiple tabs**.                                           |
+| Trim Multiple Spaces | Trim **groups** of **multiple inline spaces**.                                  |
+| Trim Multiple Tabs   | Trim **groups** of **multiple inline tabs**.                                    |
 | Trim Multiple Lines  | Trim **groups** of **multiple blank lines**.                                    |
 
 ---

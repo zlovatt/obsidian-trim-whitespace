@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ### Changed
 
 - Mechanism used for auto-trimming
+- 'Multiple Characters' to only trim inline characters (#2)
 
 ### Fixed
 

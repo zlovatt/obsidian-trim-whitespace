@@ -409,7 +409,7 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Trim Multiple Spaces")
-			.setDesc("Trim groups of multiple spaces.")
+			.setDesc("Trim groups of multiple inline spaces.")
 			.addToggle((toggle) => {
 				toggle
 					.setValue(this.plugin.settings.TrimMultipleSpaces)
@@ -421,7 +421,7 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Trim Multiple Tabs")
-			.setDesc("Trim groups of multiple tabs.")
+			.setDesc("Trim groups of multiple inline tabs.")
 			.addToggle((toggle) => {
 				toggle
 					.setValue(this.plugin.settings.TrimMultipleTabs)
