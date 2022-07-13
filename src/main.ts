@@ -1,5 +1,7 @@
 import {
 	App,
+	debounce,
+	Debouncer,
 	Editor,
 	MarkdownView,
 	Notice,
@@ -7,34 +9,19 @@ import {
 	PluginSettingTab,
 	Setting,
 } from "obsidian";
+
 import {
-	_trimTrailingCharacters,
-	_trimTrailingLines,
-	_trimLeadingCharacters,
-	_trimLeadingLines,
-	_trimMultipleSpaces,
-	_trimMultipleTabs,
-	_trimMultipleLines,
-} from "./utils/trimmers";
+	buildTokenReplaceMap,
+	replaceSwappedTokens,
+} from "./utils/searchReplaceTokens";
 
-interface TrimWhitespaceSettings {
-	TrimOnSave: boolean;
-
-	TrimTrailingSpaces: boolean;
-	TrimLeadingSpaces: boolean;
-	TrimMultipleSpaces: boolean;
-
-	TrimTrailingTabs: boolean;
-	TrimLeadingTabs: boolean;
-	TrimMultipleTabs: boolean;
-
-	TrimTrailingLines: boolean;
-	TrimLeadingLines: boolean;
-	TrimMultipleLines: boolean;
-}
+import trimText from "./utils/trimText";
 
 const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
-	TrimOnSave: true,
+	AutoTrimDocument: true,
+	AutoTrimTimeout: 2.5,
+
+	SkipCodeBlocks: true,
 
 	TrimTrailingSpaces: true,
 	TrimLeadingSpaces: false,
@@ -49,68 +36,21 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimMultipleLines: false,
 };
 
-function trimText(text: string, options: TrimWhitespaceSettings): string {
-	let trimmed = text;
-	const CHAR_SPACE = " ";
-	const CHAR_TAB = "\t";
-
-	if (options.TrimTrailingSpaces || options.TrimTrailingTabs) {
-		const trailingCharacters = [];
-
-		if (options.TrimTrailingSpaces) {
-			trailingCharacters.push(CHAR_SPACE);
-		}
-		if (options.TrimTrailingTabs) {
-			trailingCharacters.push(CHAR_TAB);
-		}
-
-		trimmed = _trimTrailingCharacters(trimmed, trailingCharacters);
-	}
-
-	if (options.TrimTrailingLines) {
-		trimmed = _trimTrailingLines(trimmed);
-	}
-
-	if (options.TrimLeadingSpaces || options.TrimLeadingTabs) {
-		const leadingCharacters = [];
-
-		if (options.TrimLeadingSpaces) {
-			leadingCharacters.push(CHAR_SPACE);
-		}
-		if (options.TrimLeadingTabs) {
-			leadingCharacters.push(CHAR_TAB);
-		}
-
-		trimmed = _trimLeadingCharacters(trimmed, leadingCharacters);
-	}
-
-	if (options.TrimLeadingLines) {
-		trimmed = _trimLeadingLines(trimmed);
-	}
-
-	if (options.TrimMultipleSpaces) {
-		trimmed = _trimMultipleSpaces(trimmed);
-	}
-
-	if (options.TrimMultipleTabs) {
-		trimmed = _trimMultipleTabs(trimmed);
-	}
-
-	if (options.TrimMultipleLines) {
-		trimmed = _trimMultipleLines(trimmed);
-	}
-
-	return trimmed;
-}
-
 export default class TrimWhitespace extends Plugin {
 	settings: TrimWhitespaceSettings;
+	debouncedTrim: Debouncer<[]>;
+	CODE_SWAP_PREFIX = "TRIM_WHITESPACE_REPLACE_";
+	CODE_SWAP_REGEX = [
+		new RegExp(/```([\s\S]+?)```/gm), // markdown code fences
+		new RegExp(/`([\s\S]+?)`/gm), // markdown code inline
+	];
 
 	async onload() {
 		await this.loadSettings();
 
 		// Register event to trim on save, based on option
-		this._toggleListenerEvent(this.settings.TrimOnSave);
+		this._initializeDebouncer(this.settings.AutoTrimTimeout);
+		this._toggleListenerEvent(this.settings.AutoTrimDocument);
 
 		// Left ribbon button
 		this.addRibbonIcon(
@@ -128,19 +68,24 @@ export default class TrimWhitespace extends Plugin {
 		this.addCommand({
 			id: "trim-whitespace-selection",
 			name: "Remove whitespace in selection",
-			callback: () => this.trimSelection(),
+			editorCallback: () => this.trimSelection(),
 		});
 
 		this.addCommand({
 			id: "trim-whitespace-document",
 			name: "Remove whitespace in document",
-			callback: () => this.trimDocument(),
+			editorCallback: () => this.trimDocument(),
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new TrimWhitespaceSettingTab(this.app, this));
 	}
 
+	/**
+	 * Gets the active editor, if present
+	 *
+	 * @return Active editor, or null
+	 */
 	_getEditor(): Editor | null {
 		const markdownView =
 			this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -152,18 +97,75 @@ export default class TrimWhitespace extends Plugin {
 		return markdownView.editor;
 	}
 
+	/**
+	 * Initializes the auto-trim debouncer, with a given timeout frequency
+	 *
+	 * @param delaySeconds Timeout value debounce with
+	 */
+	_initializeDebouncer(delaySeconds: number): void {
+		this.debouncedTrim = debounce(
+			this.trimDocument,
+			delaySeconds * 1000,
+			true
+		);
+	}
+
+	/**
+	 * Enables or disables the listener
+	 *
+	 * @param toggle Whether to enabled or disable the listener
+	 */
 	_toggleListenerEvent(toggle: boolean): void {
+		if (!this.debouncedTrim) {
+			new Notice("Trim Whitespace: Can't start auto trimmer!");
+			return;
+		}
+
 		if (toggle) {
 			this.registerEvent(
-				this.app.metadataCache.on("changed", this.trimDocument, this)
-				// this.app.vault.on("modify", this.trimDocument, this)
+				this.app.workspace.on("editor-change", this.debouncedTrim, this)
 			);
 		} else {
-			this.app.metadataCache.off("changed", this.trimDocument);
-			// this.app.vault.off("modify", this.trimDocument);
+			this.app.workspace.off("editor-change", this.debouncedTrim);
 		}
 	}
 
+	/**
+	 * Trims text, skipping code blocks if applicable
+	 *
+	 * @param  text Text to trim
+	 * @return      Trimmed text
+	 */
+	_handleTextTrim(text: string): string {
+		let terms: string[] = [];
+		const skipCodeBlocks = this.settings.SkipCodeBlocks;
+
+		if (skipCodeBlocks) {
+			const swapData = buildTokenReplaceMap(
+				text,
+				this.CODE_SWAP_PREFIX,
+				this.CODE_SWAP_REGEX
+			);
+			text = swapData.text;
+			terms = swapData.terms;
+		}
+
+		let trimmed = trimText(text, this.settings);
+
+		if (skipCodeBlocks) {
+			trimmed = replaceSwappedTokens(
+				trimmed,
+				this.CODE_SWAP_PREFIX,
+				terms
+			);
+		}
+
+		return trimmed;
+	}
+
+	/**
+	 * Trims whitespace in selected text
+	 */
 	trimSelection(): void {
 		const editor = this._getEditor();
 
@@ -179,7 +181,7 @@ export default class TrimWhitespace extends Plugin {
 			return;
 		}
 
-		const trimmed = trimText(input, this.settings);
+		const trimmed = this._handleTextTrim(input);
 
 		// Only process if text is different
 		if (trimmed == input) {
@@ -198,6 +200,9 @@ export default class TrimWhitespace extends Plugin {
 		);
 	}
 
+	/**
+	 * Trims whitespace in document
+	 */
 	trimDocument(): void {
 		const editor = this._getEditor();
 
@@ -221,7 +226,7 @@ export default class TrimWhitespace extends Plugin {
 		const toDelta = txtPreTo.length - txtPreToTrimmed.length;
 		const newTo = toCursor - toDelta;
 
-		const trimmed = trimText(input, this.settings);
+		const trimmed = this._handleTextTrim(input);
 
 		// Only process if text is different
 		if (trimmed == input) {
@@ -235,6 +240,9 @@ export default class TrimWhitespace extends Plugin {
 		);
 	}
 
+	/**
+	 * Loads settings from disk
+	 */
 	async loadSettings() {
 		this.settings = Object.assign(
 			{},
@@ -243,6 +251,9 @@ export default class TrimWhitespace extends Plugin {
 		);
 	}
 
+	/**
+	 * Saves settings to disk
+	 */
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
@@ -272,16 +283,57 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 			)
 			.addToggle((toggle) => {
 				toggle
-					.setValue(this.plugin.settings.TrimOnSave)
+					.setValue(this.plugin.settings.AutoTrimDocument)
 					.onChange(async (value) => {
-						this.plugin.settings.TrimOnSave = value;
+						this.plugin.settings.AutoTrimDocument = value;
 						await this.plugin.saveSettings();
 
 						this.plugin._toggleListenerEvent(value);
 					});
 			});
 
+		new Setting(containerEl)
+			.setName("Auto-Trim Delay (seconds)")
+			.setDesc("Seconds to wait before auto-trimming.")
+			.addText((value) => {
+				value
+					.setValue(this.plugin.settings.AutoTrimTimeout.toString())
+					.onChange(async (value) => {
+						const textAsNumber = parseFloat(value);
+
+						if (isNaN(textAsNumber)) {
+							new Notice(
+								"Trim Whitespace: Enter a valid number!"
+							);
+							return;
+						}
+
+						this.plugin.settings.AutoTrimTimeout = textAsNumber;
+						await this.plugin.saveSettings();
+
+						this.plugin._toggleListenerEvent(false);
+						this.plugin._initializeDebouncer(textAsNumber);
+						this.plugin._toggleListenerEvent(true);
+					});
+			});
+
+		new Setting(containerEl)
+			.setName("Skip Code Blocks")
+			.setDesc("Whether to ignore code blocks when trimming whitespace.")
+			.addToggle((toggle) => {
+				toggle
+					.setValue(this.plugin.settings.SkipCodeBlocks)
+					.onChange(async (value) => {
+						this.plugin.settings.SkipCodeBlocks = value;
+						await this.plugin.saveSettings();
+					});
+			});
+
 		containerEl.createEl("h2", {
+			text: "Trimming Rules",
+		});
+
+		containerEl.createEl("h3", {
 			text: "Trailing Characters",
 		});
 
@@ -321,7 +373,7 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 					});
 			});
 
-		containerEl.createEl("h2", {
+		containerEl.createEl("h3", {
 			text: "Leading Characters",
 		});
 
@@ -361,13 +413,13 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 					});
 			});
 
-		containerEl.createEl("h2", {
+		containerEl.createEl("h3", {
 			text: "Mutiple Characters",
 		});
 
 		new Setting(containerEl)
 			.setName("Trim Multiple Spaces")
-			.setDesc("Trim groups of multiple spaces.")
+			.setDesc("Trim groups of multiple inline spaces.")
 			.addToggle((toggle) => {
 				toggle
 					.setValue(this.plugin.settings.TrimMultipleSpaces)
@@ -379,7 +431,7 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Trim Multiple Tabs")
-			.setDesc("Trim groups of multiple tabs.")
+			.setDesc("Trim groups of multiple inline tabs.")
 			.addToggle((toggle) => {
 				toggle
 					.setValue(this.plugin.settings.TrimMultipleTabs)
