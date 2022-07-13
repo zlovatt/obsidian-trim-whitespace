@@ -39,6 +39,8 @@ Trim Whitespace also adds a ribbon button to trim document whitespace, though yo
 |       Feature        |                                   Description                                   |
 | -------------------- | ------------------------------------------------------------------------------- |
 | Auto-Trim            | **Automatically trim document** when modified, according to the settings below. |
+| Auto-Trim Delay      | Time to wait **in seconds** before auto-trimming.                               |
+| Skip Code Blocks     | Whether to ignore code blocks when trimming.                                    |
 | Trim Trailing Spaces | Trim **spaces** at the **end of each line**.                                    |
 | Trim Trailing Tabs   | Trim **tabs** at the **end of each line**.                                      |
 | Trim Trailing Lines  | Trim **empty** lines at the **end of the document**.                            |
