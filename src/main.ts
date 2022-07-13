@@ -20,7 +20,7 @@ import {
 } from "./utils/trimmers";
 
 interface TrimWhitespaceSettings {
-	TrimOnSave: boolean;
+	AutoTrimDocument: boolean;
 	AutoTrimTimeout: number;
 
 	TrimTrailingSpaces: boolean;
@@ -37,7 +37,7 @@ interface TrimWhitespaceSettings {
 }
 
 const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
-	TrimOnSave: true,
+	AutoTrimDocument: true,
 	AutoTrimTimeout: 2.5,
 
 	TrimTrailingSpaces: true,
@@ -116,7 +116,7 @@ export default class TrimWhitespace extends Plugin {
 
 		// Register event to trim on save, based on option
 		this._initializeDebouncer(this.settings.AutoTrimTimeout);
-		this._toggleListenerEvent(this.settings.TrimOnSave);
+		this._toggleListenerEvent(this.settings.AutoTrimDocument);
 
 		// Left ribbon button
 		this.addRibbonIcon(
@@ -291,9 +291,9 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 			)
 			.addToggle((toggle) => {
 				toggle
-					.setValue(this.plugin.settings.TrimOnSave)
+					.setValue(this.plugin.settings.AutoTrimDocument)
 					.onChange(async (value) => {
-						this.plugin.settings.TrimOnSave = value;
+						this.plugin.settings.AutoTrimDocument = value;
 						await this.plugin.saveSettings();
 
 						this.plugin._toggleListenerEvent(value);
