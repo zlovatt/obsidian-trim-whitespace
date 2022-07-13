@@ -153,7 +153,11 @@ export default class TrimWhitespace extends Plugin {
 		let trimmed = trimText(text, this.settings);
 
 		if (skipCodeBlocks) {
-			trimmed = replaceSwappedTokens(trimmed, this.CODE_SWAP_PREFIX, terms);
+			trimmed = replaceSwappedTokens(
+				trimmed,
+				this.CODE_SWAP_PREFIX,
+				terms
+			);
 		}
 
 		return trimmed;
@@ -326,6 +330,10 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		containerEl.createEl("h2", {
+			text: "Trimming Rules",
+		});
+
+		containerEl.createEl("h3", {
 			text: "Trailing Characters",
 		});
 
@@ -365,7 +373,7 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 					});
 			});
 
-		containerEl.createEl("h2", {
+		containerEl.createEl("h3", {
 			text: "Leading Characters",
 		});
 
@@ -405,7 +413,7 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 					});
 			});
 
-		containerEl.createEl("h2", {
+		containerEl.createEl("h3", {
 			text: "Mutiple Characters",
 		});
 
