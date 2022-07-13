@@ -153,7 +153,7 @@ export default class TrimWhitespace extends Plugin {
 		let trimmed = trimText(text, this.settings);
 
 		if (skipCodeBlocks) {
-			trimmed = replaceSwappedTokens(text, this.CODE_SWAP_PREFIX, terms);
+			trimmed = replaceSwappedTokens(trimmed, this.CODE_SWAP_PREFIX, terms);
 		}
 
 		return trimmed;
