@@ -68,13 +68,13 @@ export default class TrimWhitespace extends Plugin {
 		this.addCommand({
 			id: "trim-whitespace-selection",
 			name: "Remove whitespace in selection",
-			callback: () => this.trimSelection(),
+			editorCallback: () => this.trimSelection(),
 		});
 
 		this.addCommand({
 			id: "trim-whitespace-document",
 			name: "Remove whitespace in document",
-			callback: () => this.trimDocument(),
+			editorCallback: () => this.trimDocument(),
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
