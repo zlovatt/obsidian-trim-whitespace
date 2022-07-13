@@ -23,6 +23,8 @@ interface TrimWhitespaceSettings {
 	AutoTrimDocument: boolean;
 	AutoTrimTimeout: number;
 
+	SkipCodeBlocks: boolean;
+
 	TrimTrailingSpaces: boolean;
 	TrimLeadingSpaces: boolean;
 	TrimMultipleSpaces: boolean;
@@ -40,6 +42,8 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	AutoTrimDocument: true,
 	AutoTrimTimeout: 2.5,
 
+	SkipCodeBlocks: true,
+
 	TrimTrailingSpaces: true,
 	TrimLeadingSpaces: false,
 	TrimMultipleSpaces: false,
@@ -52,6 +56,75 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimLeadingLines: false,
 	TrimMultipleLines: false,
 };
+
+/**
+ * Cludgey function to:
+ * 		- exec regexp on a string
+ *    - swapping out matches with incremented prefix
+ *    - keep track of swaps
+ *    - return replaced string and terms
+ *
+ * @param text-   Text to search and replace
+ * @param prefix  Prefix incrementer should look for
+ * @param regExps Collection of regular expressions to swap
+ * @return        Replaced text with found terms
+ */
+function collectReplaceRegExps(
+	text: string,
+	prefix: string,
+	regExps: RegExp[]
+): { text: string; terms: string[] } {
+	const textCollection = {
+		text: text.toString(),
+		terms: [] as string[],
+	};
+
+	regExps.forEach((regExp) => {
+		let replaced = regExp.exec(textCollection.text);
+
+		if (!replaced) {
+			return;
+		}
+
+		while (replaced) {
+			const term = replaced[0];
+			textCollection.terms.push(term);
+
+			const replacedIndex = replaced.index;
+			const tokenCount = textCollection.terms.length - 1;
+			const token = prefix + tokenCount.toString();
+
+			textCollection.text =
+				textCollection.text.slice(0, replacedIndex) +
+				token +
+				textCollection.text.slice(replacedIndex + term.length);
+			replaced = regExp.exec(textCollection.text);
+		}
+	});
+
+	return textCollection;
+}
+
+/**
+ * Replace iteratable swapped tokens in text with matching terms
+ *
+ * @param text   Text to swap tokens in
+ * @param prefix Search term prefix string
+ * @param terms  Terms to swap
+ * @return       Swapped token
+ */
+function replaceSwappedTokens(
+	text: string,
+	prefix: string,
+	terms: string[]
+): string {
+	terms.forEach((term, ii) => {
+		const token = prefix + ii.toString();
+		text = text.replace(token, term);
+	});
+
+	return text;
+}
 
 /**
  * Trims text according to settings
@@ -117,6 +190,11 @@ function trimText(text: string, options: TrimWhitespaceSettings): string {
 export default class TrimWhitespace extends Plugin {
 	settings: TrimWhitespaceSettings;
 	debouncedTrim: Debouncer<[]>;
+	CODE_SWAP_PREFIX = "TRIM_WHITESPACE_REPLACE_";
+	CODE_SWAP_REGEX = [
+		new RegExp(/```([\s\S]+?)```/gm), // markdown code fences
+		new RegExp(/`([\s\S]+?)`/gm), // markdown code inline
+	];
 
 	async onload() {
 		await this.loadSettings();
@@ -199,8 +277,37 @@ export default class TrimWhitespace extends Plugin {
 				this.app.workspace.on("editor-change", this.debouncedTrim, this)
 			);
 		} else {
-			this.app.workspace.off("editor-change", this.debouncedTrim)
+			this.app.workspace.off("editor-change", this.debouncedTrim);
 		}
+	}
+
+	/**
+	 * Trims text, skipping code blocks if applicable
+	 *
+	 * @param  text Text to trim
+	 * @return      Trimmed text
+	 */
+	_handleTextTrim(text: string): string {
+		let terms: string[] = [];
+		const skipCodeBlocks = this.settings.SkipCodeBlocks;
+
+		if (skipCodeBlocks) {
+			const swapData = collectReplaceRegExps(
+				text,
+				this.CODE_SWAP_PREFIX,
+				this.CODE_SWAP_REGEX
+			);
+			text = swapData.text;
+			terms = swapData.terms;
+		}
+
+		let trimmed = trimText(text, this.settings);
+
+		if (skipCodeBlocks) {
+			trimmed = replaceSwappedTokens(text, this.CODE_SWAP_PREFIX, terms);
+		}
+
+		return trimmed;
 	}
 
 	/**
@@ -221,7 +328,7 @@ export default class TrimWhitespace extends Plugin {
 			return;
 		}
 
-		const trimmed = trimText(input, this.settings);
+		const trimmed = this._handleTextTrim(input);
 
 		// Only process if text is different
 		if (trimmed == input) {
@@ -266,7 +373,7 @@ export default class TrimWhitespace extends Plugin {
 		const toDelta = txtPreTo.length - txtPreToTrimmed.length;
 		const newTo = toCursor - toDelta;
 
-		const trimmed = trimText(input, this.settings);
+		const trimmed = this._handleTextTrim(input);
 
 		// Only process if text is different
 		if (trimmed == input) {
@@ -332,11 +439,9 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 					});
 			});
 
-			new Setting(containerEl)
+		new Setting(containerEl)
 			.setName("Auto-Trim Delay (seconds)")
-			.setDesc(
-				"Seconds to wait before auto-trimming."
-			)
+			.setDesc("Seconds to wait before auto-trimming.")
 			.addText((value) => {
 				value
 					.setValue(this.plugin.settings.AutoTrimTimeout.toString())
@@ -354,6 +459,18 @@ class TrimWhitespaceSettingTab extends PluginSettingTab {
 						this.plugin._toggleListenerEvent(false);
 						this.plugin._initializeDebouncer(textAsNumber);
 						this.plugin._toggleListenerEvent(true);
+					});
+			});
+
+		new Setting(containerEl)
+			.setName("Skip Code Blocks")
+			.setDesc("Whether to ignore code blocks when trimming whitespace.")
+			.addToggle((toggle) => {
+				toggle
+					.setValue(this.plugin.settings.SkipCodeBlocks)
+					.onChange(async (value) => {
+						this.plugin.settings.SkipCodeBlocks = value;
+						await this.plugin.saveSettings();
 					});
 			});
 

@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ### Added
 
 - Setting to control minimum time delay between auto-trim (#1)
+- Option to skip code blocks (#4)
 
 ### Changed
 
