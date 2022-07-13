@@ -13,15 +13,41 @@ Trim Whitespace operates on three different types of whitespace, with three diff
 
 ### Whitespace Types
 
-1. **Spaces** - The space character, (` `)
-2. **Tabs** - The tab character, (`\t` or `	`)
-3. **Lines** - Newline character, either, (`\r` or `\n`)
+1. **Spaces** - The space character, (` `, stylised as `·`)
+2. **Tabs** - The tab character, (`\t` or `	`, stylised as `→`)
+3. **Lines** - Newline character, either, (`\r` or `\n`, stylised as `¬`)
 
 ### Targets
 
-1. **Trailing** – Trim whitespace at the **end** of each line, or open document.
-2. **Leading** – Trim whitespace at the **start** of each line, or open document.
-3. **Multiple** - Trim groups of whitespace (2 or more consecutive inline spaces/tabs, or consecutive lines)
+#### Trailing
+
+Trim whitespace at the **end** of each line, or open document.
+
+|                      Before                       |                After                |
+| ------------------------------------------------- | ----------------------------------- |
+| <pre>Hello·World!····</pre>                       | <pre>Hello·World!</pre>             |
+| <pre>Hello·World!→→→</pre>                        | <pre>Hello·World!</pre>             |
+| <pre># Hello¬<br>¬<br>World!¬<br>¬<br>¬<br></pre> | <pre># Hello¬<br>¬<br>World!¬</pre> |
+
+#### Leading
+
+Trim whitespace at the **start** of each line, or open document.
+
+  |                    Before                     |                After                |
+  | --------------------------------------------- | ----------------------------------- |
+  | <pre>····Hello·World!</pre>                   | <pre>Hello·World!</pre>             |
+  | <pre>→→→Hello·World!</pre>                    | <pre>Hello·World!</pre>             |
+  | <pre>¬<br>¬<br># Hello¬<br>¬<br>World!¬</pre> | <pre># Hello¬<br>¬<br>World!¬</pre> |
+
+#### Multiple
+
+Trim groups of whitespace (2 or more consecutive **inline** spaces/tabs, or **consecutive lines**)
+
+|                       Before                       |                After                |
+| -------------------------------------------------- | ----------------------------------- |
+| <pre>Hello···World!</pre>                          | <pre>Hello·World!</pre>             |
+| <pre>Hello→→→World!</pre>                          | <pre>Hello→World!</pre>             |
+| <pre># Hello¬<br>¬<br>¬<br>World!¬<br>¬<br>¬</pre> | <pre># Hello¬<br>¬<br>World!¬</pre> |
 
 ---
 
