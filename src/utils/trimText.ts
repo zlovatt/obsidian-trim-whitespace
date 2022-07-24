@@ -1,3 +1,8 @@
+import {
+	buildTokenReplaceMap,
+	replaceSwappedTokens,
+} from "./searchReplaceTokens";
+
 /** Trailing */
 
 /**
@@ -85,7 +90,7 @@ function _trimMultipleLines(str: string): string {
  * @param options Preferences to control trimming
  * @return        Trimmed string
  */
-export default function trimText(
+export function trimText(
 	text: string,
 	options: TrimWhitespaceSettings
 ): string {
@@ -137,6 +142,44 @@ export default function trimText(
 
 	if (options.TrimMultipleLines) {
 		trimmed = _trimMultipleLines(trimmed);
+	}
+
+	return trimmed;
+}
+
+/**
+ * Trims text, skipping code blocks if applicable
+ *
+ * @param  text Text to trim
+ * @return      Trimmed text
+ */
+export function handleTextTrim(
+	text: string,
+	settings: TrimWhitespaceSettings
+): string {
+	let terms: string[] = [];
+	const skipCodeBlocks = settings.SkipCodeBlocks;
+
+	const CODE_SWAP_PREFIX = "TRIM_WHITESPACE_REPLACE_";
+	const CODE_SWAP_REGEX = [
+		new RegExp(/```([\s\S]+?)```/gm), // markdown code fences
+		new RegExp(/`([\s\S]+?)`/gm), // markdown code inline
+	];
+
+	if (skipCodeBlocks) {
+		const swapData = buildTokenReplaceMap(
+			text,
+			CODE_SWAP_PREFIX,
+			CODE_SWAP_REGEX
+		);
+		text = swapData.text;
+		terms = swapData.terms;
+	}
+
+	let trimmed = trimText(text, settings);
+
+	if (skipCodeBlocks) {
+		trimmed = replaceSwappedTokens(trimmed, CODE_SWAP_PREFIX, terms);
 	}
 
 	return trimmed;

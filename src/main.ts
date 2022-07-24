@@ -6,14 +6,9 @@ import {
 	Notice,
 	Plugin,
 } from "obsidian";
+
 import { TrimWhitespaceSettingTab } from "./settings";
-
-import {
-	buildTokenReplaceMap,
-	replaceSwappedTokens,
-} from "./utils/searchReplaceTokens";
-
-import trimText from "./utils/trimText";
+import { handleTextTrim, trimText } from "./utils/trimText";
 
 const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	AutoTrimDocument: true,
@@ -37,11 +32,6 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 export default class TrimWhitespace extends Plugin {
 	settings: TrimWhitespaceSettings;
 	debouncedTrim: Debouncer<[]>;
-	CODE_SWAP_PREFIX = "TRIM_WHITESPACE_REPLACE_";
-	CODE_SWAP_REGEX = [
-		new RegExp(/```([\s\S]+?)```/gm), // markdown code fences
-		new RegExp(/`([\s\S]+?)`/gm), // markdown code inline
-	];
 
 	async onload() {
 		await this.loadSettings();
@@ -129,39 +119,6 @@ export default class TrimWhitespace extends Plugin {
 	}
 
 	/**
-	 * Trims text, skipping code blocks if applicable
-	 *
-	 * @param  text Text to trim
-	 * @return      Trimmed text
-	 */
-	_handleTextTrim(text: string): string {
-		let terms: string[] = [];
-		const skipCodeBlocks = this.settings.SkipCodeBlocks;
-
-		if (skipCodeBlocks) {
-			const swapData = buildTokenReplaceMap(
-				text,
-				this.CODE_SWAP_PREFIX,
-				this.CODE_SWAP_REGEX
-			);
-			text = swapData.text;
-			terms = swapData.terms;
-		}
-
-		let trimmed = trimText(text, this.settings);
-
-		if (skipCodeBlocks) {
-			trimmed = replaceSwappedTokens(
-				trimmed,
-				this.CODE_SWAP_PREFIX,
-				terms
-			);
-		}
-
-		return trimmed;
-	}
-
-	/**
 	 * Trims whitespace in selected text
 	 */
 	trimSelection(): void {
@@ -179,7 +136,7 @@ export default class TrimWhitespace extends Plugin {
 			return;
 		}
 
-		const trimmed = this._handleTextTrim(input);
+		const trimmed = handleTextTrim(input, this.settings);
 
 		// Only process if text is different
 		if (trimmed == input) {
@@ -224,7 +181,7 @@ export default class TrimWhitespace extends Plugin {
 		const toDelta = txtPreTo.length - txtPreToTrimmed.length;
 		const newTo = toCursor - toDelta;
 
-		const trimmed = this._handleTextTrim(input);
+		const trimmed = handleTextTrim(input, this.settings);
 
 		// Only process if text is different
 		if (trimmed == input) {
