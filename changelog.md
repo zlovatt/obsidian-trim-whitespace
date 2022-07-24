@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ### Fixed
 
-- "Skip code blocks" failing if more than 10 code blocks present in document ( #7 )
+- "Skip code blocks" failing if more than 10 code blocks present in document ([\#7](https://github.com/zlovatt/obsidian-trim-whitespace/issues/7))
 
 ---
 
@@ -26,17 +26,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ### Added
 
-- Setting to control minimum time delay between auto-trim (#1)
-- Option to skip code blocks (#4)
+- Setting to control minimum time delay between auto-trim ([\#1](https://github.com/zlovatt/obsidian-trim-whitespace/issues/1))
+- Option to skip code blocks ([\#4](https://github.com/zlovatt/obsidian-trim-whitespace/issues/4))
 
 ### Changed
 
 - Mechanism used for auto-trimming
-- 'Multiple Characters' to only trim inline characters (#2)
+- 'Multiple Characters' to only trim inline characters ([\#2](https://github.com/zlovatt/obsidian-trim-whitespace/issues/2))
 
 ### Fixed
 
-- 'Multiple Characters' trimming within tables (#3)
+- 'Multiple Characters' trimming within tables ([\#3](https://github.com/zlovatt/obsidian-trim-whitespace/issues/3))
 
 ---
 
