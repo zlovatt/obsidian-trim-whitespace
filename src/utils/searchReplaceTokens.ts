@@ -33,7 +33,7 @@ function buildTokenReplaceMap(
 
 			const replacedIndex = replaced.index;
 			const tokenCount = textCollection.terms.length - 1;
-			const token = prefix + tokenCount.toString();
+			const token = `{{${prefix}${tokenCount.toString()}}}`;
 
 			textCollection.text =
 				textCollection.text.slice(0, replacedIndex) +
@@ -60,7 +60,7 @@ function replaceSwappedTokens(
 	terms: string[]
 ): string {
 	terms.forEach((term, ii) => {
-		const token = prefix + ii.toString();
+		const token = `{{${prefix}${ii.toString()}}}`;
 		text = text.replace(token, term);
 	});
 

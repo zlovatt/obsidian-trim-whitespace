@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ### Fixed
 
--
+- "Skip code blocks" failing if more than 10 code blocks present in document ( #7 )
 
 ---
 
