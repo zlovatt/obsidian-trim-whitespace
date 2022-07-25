@@ -39,6 +39,8 @@ function buildTokenReplaceMap(
 				textCollection.text.slice(0, replacedIndex) +
 				token +
 				textCollection.text.slice(replacedIndex + term.length);
+
+			regExp.lastIndex = 0;
 			replaced = regExp.exec(textCollection.text);
 		}
 	});
