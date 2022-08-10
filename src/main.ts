@@ -8,7 +8,7 @@ import {
 } from "obsidian";
 
 import { TrimWhitespaceSettingTab } from "./settings";
-import { handleTextTrim, trimText } from "./utils/trimText";
+import handleTextTrim from "./utils/trimText";
 
 const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	AutoTrimDocument: true,
@@ -188,13 +188,13 @@ export default class TrimWhitespace extends Plugin {
 		// Not ideal at all, but need to figure out how much to shift head and tail independently
 		const fromCursor = editor.posToOffset(editor.getCursor("from"));
 		const txtPreFrom = input.slice(0, fromCursor);
-		const textPreFromTrimmed = trimText(txtPreFrom, this.settings);
+		const textPreFromTrimmed = handleTextTrim(txtPreFrom, this.settings);
 		const fromDelta = txtPreFrom.length - textPreFromTrimmed.length;
 		const newFrom = fromCursor - fromDelta;
 
 		const toCursor = editor.posToOffset(editor.getCursor("to"));
 		const txtPreTo = input.slice(0, toCursor);
-		const txtPreToTrimmed = trimText(txtPreTo, this.settings);
+		const txtPreToTrimmed = handleTextTrim(txtPreTo, this.settings);
 		const toDelta = txtPreTo.length - txtPreToTrimmed.length;
 		const newTo = toCursor - toDelta;
 

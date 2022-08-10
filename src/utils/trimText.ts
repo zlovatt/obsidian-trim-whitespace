@@ -90,7 +90,7 @@ function _trimMultipleLines(str: string): string {
  * @param options Preferences to control trimming
  * @return        Trimmed string
  */
-export function trimText(
+function trimText(
 	text: string,
 	options: TrimWhitespaceSettings
 ): string {
@@ -153,7 +153,7 @@ export function trimText(
  * @param  text Text to trim
  * @return      Trimmed text
  */
-export function handleTextTrim(
+export default function handleTextTrim(
 	text: string,
 	settings: TrimWhitespaceSettings
 ): string {

@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ### Fixed
 
 - "Skip code blocks" failing with multiple nearby code fences ([\#8](https://github.com/zlovatt/obsidian-trim-whitespace/issues/8))
+- "Skip code blocks" misplacing selection cursors in documents containing code
 
 ---
 
