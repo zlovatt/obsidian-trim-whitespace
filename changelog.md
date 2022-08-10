@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ### Changed
 
--
+- "Cmd/Ctrl+S" triggers auto-trim, if enabled ([\#6](https://github.com/zlovatt/obsidian-trim-whitespace/issues/6))
 
 ### Fixed
 

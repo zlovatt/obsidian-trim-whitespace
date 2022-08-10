@@ -67,6 +67,23 @@ export default class TrimWhitespace extends Plugin {
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new TrimWhitespaceSettingTab(this.app, this));
+
+		// Highjack ctrl+s
+		// eslint-disable-next-line
+		const saveCommandDefinition = (this.app as any).commands?.commands?.[
+			"editor:save-file"
+		];
+		const save = saveCommandDefinition?.callback;
+
+		if (typeof save === "function") {
+			saveCommandDefinition.callback = () => {
+				if (this.settings.AutoTrimDocument) {
+					this.trimDocument();
+				}
+
+				save();
+			};
+		}
 	}
 
 	/**
