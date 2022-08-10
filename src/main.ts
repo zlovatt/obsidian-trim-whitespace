@@ -186,17 +186,19 @@ export default class TrimWhitespace extends Plugin {
 
 		// Some fuckery to get start and end cursor positions when trimming the whole document;
 		// Not ideal at all, but need to figure out how much to shift head and tail independently
-		const fromCursor = editor.posToOffset(editor.getCursor("from"));
-		const txtPreFrom = input.slice(0, fromCursor);
-		const textPreFromTrimmed = handleTextTrim(txtPreFrom, this.settings);
-		const fromDelta = txtPreFrom.length - textPreFromTrimmed.length;
-		const newFrom = fromCursor - fromDelta;
+		const fromCursor = editor.getCursor("from");
+		const fromCursorOffset = editor.posToOffset(fromCursor);
+		const fromBeforeText = input.slice(0, fromCursorOffset);
+		const fromBeforeTrimmed = handleTextTrim(fromBeforeText, this.settings);
+		const fromLengthDelta = fromBeforeText.length - fromBeforeTrimmed.length;
+		const fromNewOffset = fromCursorOffset - fromLengthDelta;
 
-		const toCursor = editor.posToOffset(editor.getCursor("to"));
-		const txtPreTo = input.slice(0, toCursor);
-		const txtPreToTrimmed = handleTextTrim(txtPreTo, this.settings);
-		const toDelta = txtPreTo.length - txtPreToTrimmed.length;
-		const newTo = toCursor - toDelta;
+		const toCursor = editor.getCursor("to");
+		const toCursorOffset = editor.posToOffset(toCursor);
+		const toBeforeText = input.slice(0, toCursorOffset);
+		const toBeforeTrimmed = handleTextTrim(toBeforeText, this.settings);
+		const toLengthDelta = toBeforeText.length - toBeforeTrimmed.length;
+		const toNewOffset = toCursorOffset - toLengthDelta;
 
 		const trimmed = handleTextTrim(input, this.settings);
 
@@ -207,8 +209,8 @@ export default class TrimWhitespace extends Plugin {
 
 		editor.setValue(trimmed);
 		editor.setSelection(
-			editor.offsetToPos(newFrom),
-			editor.offsetToPos(newTo)
+			editor.offsetToPos(fromNewOffset),
+			editor.offsetToPos(toNewOffset)
 		);
 	}
 
