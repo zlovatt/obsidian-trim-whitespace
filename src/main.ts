@@ -29,6 +29,12 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimMultipleLines: false,
 };
 
+enum TrimTrigger {
+    Command,
+    Save,
+    AutoTrim
+};
+
 export default class TrimWhitespace extends Plugin {
 	settings: TrimWhitespaceSettings;
 	debouncedTrim: Debouncer<[]>;
@@ -48,7 +54,7 @@ export default class TrimWhitespace extends Plugin {
 				if (evt.shiftKey) {
 					this.trimSelection();
 				} else {
-					this.trimDocument();
+					this.trimDocument(TrimTrigger.Command);
 				}
 			}
 		);
@@ -62,7 +68,7 @@ export default class TrimWhitespace extends Plugin {
 		this.addCommand({
 			id: "trim-whitespace-document",
 			name: "Remove whitespace in document",
-			editorCallback: () => this.trimDocument(),
+			editorCallback: () => this.trimDocument(TrimTrigger.Command),
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
@@ -78,7 +84,7 @@ export default class TrimWhitespace extends Plugin {
 		if (typeof save === "function") {
 			saveCommandDefinition.callback = () => {
 				if (this.settings.AutoTrimDocument) {
-					this.trimDocument();
+					this.trimDocument(TrimTrigger.Save);
 				}
 
 				save();
@@ -109,7 +115,7 @@ export default class TrimWhitespace extends Plugin {
 	 */
 	_initializeDebouncer(delaySeconds: number): void {
 		this.debouncedTrim = debounce(
-			this.trimDocument,
+			() => this.trimDocument(TrimTrigger.AutoTrim),
 			delaySeconds * 1000,
 			true
 		);
@@ -133,6 +139,32 @@ export default class TrimWhitespace extends Plugin {
 		} else {
 			this.app.workspace.off("editor-change", this.debouncedTrim);
 		}
+	}
+
+	/**
+	 * Creates a version of settings that does not trim trailing text
+	 *
+	 * @param toggle Whether to enabled or disable the listener
+	 */
+	_doNotTrimTrailing(orig: TrimWhitespaceSettings): TrimWhitespaceSettings {
+		let updated: TrimWhitespaceSettings = Object.assign({}, orig);
+		updated.TrimTrailingSpaces = false;
+		updated.TrimTrailingTabs = false;
+		updated.TrimTrailingLines = false;
+		return updated;
+	}
+
+	/**
+	 * Creates a version of settings that does not trim leading text
+	 *
+	 * @param toggle Whether to enabled or disable the listener
+	 */
+	_doNotTrimLeading(orig: TrimWhitespaceSettings): TrimWhitespaceSettings {
+		let updated: TrimWhitespaceSettings = Object.assign({}, orig);
+		updated.TrimLeadingSpaces = false;
+		updated.TrimLeadingTabs = false;
+		updated.TrimLeadingLines = false;
+		return updated;
 	}
 
 	/**
@@ -175,7 +207,7 @@ export default class TrimWhitespace extends Plugin {
 	/**
 	 * Trims whitespace in document
 	 */
-	trimDocument(): void {
+	trimDocument(causedBy: TrimTrigger): void {
 		const editor = this._getEditor();
 
 		if (!editor) {
@@ -184,23 +216,48 @@ export default class TrimWhitespace extends Plugin {
 
 		const input = editor.getValue();
 
-		// Some fuckery to get start and end cursor positions when trimming the whole document;
-		// Not ideal at all, but need to figure out how much to shift head and tail independently
 		const fromCursor = editor.getCursor("from");
 		const fromCursorOffset = editor.posToOffset(fromCursor);
-		const fromBeforeText = input.slice(0, fromCursorOffset);
-		const fromBeforeTrimmed = handleTextTrim(fromBeforeText, this.settings);
-		const fromLengthDelta = fromBeforeText.length - fromBeforeTrimmed.length;
-		const fromNewOffset = fromCursorOffset - fromLengthDelta;
-
 		const toCursor = editor.getCursor("to");
 		const toCursorOffset = editor.posToOffset(toCursor);
-		const toBeforeText = input.slice(0, toCursorOffset);
-		const toBeforeTrimmed = handleTextTrim(toBeforeText, this.settings);
-		const toLengthDelta = toBeforeText.length - toBeforeTrimmed.length;
-		const toNewOffset = toCursorOffset - toLengthDelta;
 
-		const trimmed = handleTextTrim(input, this.settings);
+		let trimmed: string = "";
+		let fromNewOffset: number = 0;
+		let toNewOffset: number = 0;
+
+		if (causedBy == TrimTrigger.AutoTrim) {
+			// When auto-trimming, do not modify whitespace immediately before
+			// the cursor/selection, within the selection, or immediately
+			// after the cursor/selection.
+			const beforeText = input.slice(0, fromCursorOffset);
+			const betweenText = input.slice(fromCursorOffset, toCursorOffset);
+			const afterText = input.slice(toCursorOffset);
+
+			const beforeTrimmed = handleTextTrim(
+				beforeText, this._doNotTrimTrailing(this.settings));
+			const afterTrimmed = handleTextTrim(
+				afterText, this._doNotTrimLeading(this.settings));
+
+			fromNewOffset = beforeTrimmed.length;
+			toNewOffset = fromNewOffset + betweenText.length;
+
+			trimmed = beforeTrimmed + betweenText + afterTrimmed;
+
+		} else {
+			// Some fuckery to get start and end cursor positions when
+			// trimming the whole document; Not ideal at all, but need to
+			// figure out how much to shift head and tail independently
+			const fromBeforeText = input.slice(0, fromCursorOffset);
+			const fromBeforeTrimmed = handleTextTrim(
+				fromBeforeText, this.settings);
+			fromNewOffset = fromBeforeTrimmed.length;
+			const toBeforeText = input.slice(0, toCursorOffset);
+			const toBeforeTrimmed = handleTextTrim(
+				toBeforeText, this.settings);
+			toNewOffset = toBeforeTrimmed.length;
+
+			trimmed = handleTextTrim(input, this.settings);
+		}
 
 		// Only process if text is different
 		if (trimmed == input) {
