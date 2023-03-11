@@ -243,6 +243,11 @@ export default class TrimWhitespace extends Plugin {
 
 			trimmed = beforeTrimmed + betweenText + afterTrimmed;
 
+			const fullyTrimmed = handleTextTrim(input, this.settings);
+			if (trimmed != fullyTrimmed) {
+				this.debouncedTrim();  // keep the debouncer cycling till done
+			}
+
 		} else {
 			// Some fuckery to get start and end cursor positions when
 			// trimming the whole document; Not ideal at all, but need to
