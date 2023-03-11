@@ -142,32 +142,6 @@ export default class TrimWhitespace extends Plugin {
 	}
 
 	/**
-	 * Creates a version of settings that does not trim trailing text
-	 *
-	 * @param toggle Whether to enabled or disable the listener
-	 */
-	_doNotTrimTrailing(orig: TrimWhitespaceSettings): TrimWhitespaceSettings {
-		let updated: TrimWhitespaceSettings = Object.assign({}, orig);
-		updated.TrimTrailingSpaces = false;
-		updated.TrimTrailingTabs = false;
-		updated.TrimTrailingLines = false;
-		return updated;
-	}
-
-	/**
-	 * Creates a version of settings that does not trim leading text
-	 *
-	 * @param toggle Whether to enabled or disable the listener
-	 */
-	_doNotTrimLeading(orig: TrimWhitespaceSettings): TrimWhitespaceSettings {
-		let updated: TrimWhitespaceSettings = Object.assign({}, orig);
-		updated.TrimLeadingSpaces = false;
-		updated.TrimLeadingTabs = false;
-		updated.TrimLeadingLines = false;
-		return updated;
-	}
-
-	/**
 	 * Trims whitespace in selected text
 	 */
 	trimSelection(): void {
@@ -233,10 +207,18 @@ export default class TrimWhitespace extends Plugin {
 			const betweenText = input.slice(fromCursorOffset, toCursorOffset);
 			const afterText = input.slice(toCursorOffset);
 
-			const beforeTrimmed = handleTextTrim(
-				beforeText, this._doNotTrimTrailing(this.settings));
-			const afterTrimmed = handleTextTrim(
-				afterText, this._doNotTrimLeading(this.settings));
+			// Separate the before text into text and trailing whitespace
+			const beforeText0 = beforeText.trimEnd();
+			const beforeText1 = beforeText.substr(beforeText0.length);
+			// Separate the after text into leading whitespace and text
+			const afterText1 = afterText.trimStart();
+			const afterText0 = afterText.substr(
+				0, afterText.length - afterText1.length);
+
+			const beforeTrimmed =
+				handleTextTrim(beforeText0, this.settings) + beforeText1;
+			const afterTrimmed =
+				afterText0 + handleTextTrim(afterText1, this.settings);
 
 			fromNewOffset = beforeTrimmed.length;
 			toNewOffset = fromNewOffset + betweenText.length;
