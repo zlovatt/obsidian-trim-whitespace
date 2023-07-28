@@ -60,7 +60,16 @@ function _trimLeadingLines(str: string): string {
  * @return    Trimmed text
  */
 function _trimMultipleSpaces(str: string): string {
-	return str.replace(/(?<!(\||^)\s*)( ){2,}(?!\s*(\||$))/gm, " ");
+	for (;;) {
+		const next = str.replace(
+			/([^|\n \t](?:[ \t]*\t)?) {2,}(?=(?:\t[ \t]*)?[^|\n \t])/gm,
+			"$1 "
+		);
+		if (next == str) {
+			return str;
+		}
+		str = next;
+	}
 }
 
 /**
@@ -70,7 +79,16 @@ function _trimMultipleSpaces(str: string): string {
  * @return    Trimmed text
  */
 function _trimMultipleTabs(str: string): string {
-	return str.replace(/(?<!(\||^)\s*)(\t){2,}(?!\s*(\||$))/gm, "\t");
+	for (;;) {
+		const next = str.replace(
+			/([^|\n \t](?:[ \t]* )?)\t{2,}(?=(?: [ \t]*)?[^|\n \t])/gm,
+			"$1\t"
+		);
+		if (next == str) {
+			return str;
+		}
+		str = next;
+	}
 }
 
 /**
