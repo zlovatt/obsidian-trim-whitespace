@@ -78,10 +78,7 @@ export default class TrimWhitespace extends Plugin {
 
 		if (typeof save === "function") {
 			saveCommandDefinition.callback = () => {
-				if (this.settings.AutoTrimDocument) {
-					this.trimDocument();
-				}
-
+				this.trimDocument();
 				save();
 			};
 		}

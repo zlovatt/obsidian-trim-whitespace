@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ### Changed
 
--
+- `CTRL/CMD + S` trims document even if Auto-Trim is disabled ([\#12](https://github.com/zlovatt/obsidian-trim-whitespace/issues/12))
 
 ### Fixed
 
