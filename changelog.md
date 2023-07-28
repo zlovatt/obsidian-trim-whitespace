@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ### Added
 
--
+- Jest test suite (thanks @velebit!)
 
 ### Changed
 
@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ### Fixed
 
--
+- Plugin not loading on iOS (thanks @velebit!) ([\#14](https://github.com/zlovatt/obsidian-trim-whitespace/issues/14))
 
 ---
 
