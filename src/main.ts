@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	AutoTrimDocument: true,
 	AutoTrimTimeout: 2.5,
 
-	SkipCodeBlocks: true,
+	PreserveCodeBlocks: true,
 	PreserveIndentedLists: true,
 
 	TrimTrailingSpaces: true,
