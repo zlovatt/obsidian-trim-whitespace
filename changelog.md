@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ### Added
 
 - Jest test suite (thanks @velebit!)
+- Setting to preserve leading characters if part of an indented list
 
 ### Changed
 

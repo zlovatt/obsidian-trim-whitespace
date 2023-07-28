@@ -120,6 +120,18 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 		});
 
 		new Setting(containerEl)
+		.setName("Preserve Indented Lists")
+		.setDesc("Preserve leading characters if they're used for list indentation.")
+		.addToggle((toggle) => {
+			toggle
+				.setValue(this.plugin.settings.PreserveIndentedLists)
+				.onChange(async (value) => {
+					this.plugin.settings.PreserveIndentedLists = value;
+					await this.plugin.saveSettings();
+				});
+		});
+
+		new Setting(containerEl)
 			.setName("Trim Leading Spaces")
 			.setDesc("Trim spaces at the start of each line.")
 			.addToggle((toggle) => {
