@@ -39,7 +39,7 @@ const ALL_FALSE: TrimWhitespaceSettings = {
 	AutoTrimDocument: false,
 	AutoTrimTimeout: 99,
 
-	SkipCodeBlocks: false,
+	PreserveCodeBlocks: false,
 	PreserveIndentedLists: false,
 
 	TrimTrailingSpaces: false,

@@ -76,13 +76,13 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Skip Code Blocks")
-			.setDesc("Whether to ignore code blocks when trimming whitespace.")
+			.setName("Preserve Code Blocks")
+			.setDesc("Whether to preserve whitespace within code blocks.")
 			.addToggle((toggle) => {
 				toggle
-					.setValue(this.plugin.settings.SkipCodeBlocks)
+					.setValue(this.plugin.settings.PreserveCodeBlocks)
 					.onChange(async (value) => {
-						this.plugin.settings.SkipCodeBlocks = value;
+						this.plugin.settings.PreserveCodeBlocks = value;
 						await this.plugin.saveSettings();
 					});
 			});

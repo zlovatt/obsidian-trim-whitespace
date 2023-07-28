@@ -17,12 +17,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ### Changed
 
 - Trimming via `CTRL/CMD + S` no longer requires Auto-Trim to be enabled ([\#12](https://github.com/zlovatt/obsidian-trim-whitespace/issues/12))
+- "Skip Code Blocks" setting name to "Preserve Code Blocks"
 
 ### Fixed
 
 - Trimming of indented lists ([\#9](https://github.com/zlovatt/obsidian-trim-whitespace/issues/9))
 - Plugin not loading on iOS (thanks @velebit!) ([\#14](https://github.com/zlovatt/obsidian-trim-whitespace/issues/14))
 - Typo in settings ([\#16](https://github.com/zlovatt/obsidian-trim-whitespace/issues/16))
+- Issue trimming code blocks containing template literals ([\#17](https://github.com/zlovatt/obsidian-trim-whitespace/issues/17))
 
 ---
 
@@ -71,7 +73,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 - Initial commit!
 
-[Unreleased]: https://github.com/zlovatt/obsidian-trim-whitespace/compare/master...develop
+[Unreleased]: https://github.com/zlovatt/obsidian-trim-whitespace/compare/main...develop
 [v0.2.2]: https://github.com/zlovatt/obsidian-trim-whitespace/compare/v0.2.1...v0.2.2
 [v0.2.1]: https://github.com/zlovatt/obsidian-trim-whitespace/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/zlovatt/obsidian-trim-whitespace/compare/v0.1.0...v0.2.0
