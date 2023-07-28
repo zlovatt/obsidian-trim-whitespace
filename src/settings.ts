@@ -156,7 +156,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		containerEl.createEl("h3", {
-			text: "Mutiple Characters",
+			text: "Multiple Characters",
 		});
 
 		new Setting(containerEl)
