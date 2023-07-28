@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "yarn set-versions && obsidian-plugin dev src/main.ts",
 		"build": "yarn set-versions && obsidian-plugin build src/main.ts",
+		"watchTest": "yarn run jest --watchAll",
 		"test": "yarn run jest",
 		"set-versions": "node scripts/set-versions.mjs"
 	},
