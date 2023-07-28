@@ -305,6 +305,27 @@ describe("trimming leading characters", () => {
 		expect(_trimLeadingSpaces(input)).toEqual(trimmed);
 		expect(_trimLeadingTabs(input)).toEqual(input); // not trimmed!
 	});
+	test("leading lists with tabs to not trim", () => {
+		const input = _mkText().replace(/^/gm, "\t\t* ");
+		const trimmed = _mkText().replace(/^/gm, "\t\t* ");
+		expect(_trimLeadingSpacesTabs(input)).toEqual(trimmed);
+		expect(_trimLeadingSpaces(input)).toEqual(trimmed);
+		expect(_trimLeadingTabs(input)).toEqual(input); // not trimmed!
+	});
+	test("leading lists with spaces to not trim", () => {
+		const input = _mkText().replace(/^/gm, "        * ");
+		const trimmed = _mkText().replace(/^/gm, "        * ");
+		expect(_trimLeadingSpacesTabs(input)).toEqual(trimmed);
+		expect(_trimLeadingSpaces(input)).toEqual(trimmed);
+		expect(_trimLeadingTabs(input)).toEqual(input); // not trimmed!
+	});
+	test("leading ordered lists with spaces to not trim", () => {
+		const input = _mkText().replace(/^/gm, "        1. ");
+		const trimmed = _mkText().replace(/^/gm, "        1. ");
+		expect(_trimLeadingSpacesTabs(input)).toEqual(trimmed);
+		expect(_trimLeadingSpaces(input)).toEqual(trimmed);
+		expect(_trimLeadingTabs(input)).toEqual(input); // not trimmed!
+	});
 	test("leading tabs to trim", () => {
 		const input = _mkText({
 			lineLeading: "\t\t",

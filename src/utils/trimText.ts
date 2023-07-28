@@ -30,14 +30,18 @@ function _trimTrailingLines(str: string): string {
 /** Leading */
 
 /**
- * Trims leading characters at start of each line
+ * Trims leading characters at start of each line,
+ * unless the indent is followed by a list indication character (*, -, +, or digits)
  *
  * @param str   Text to trim
  * @param chars Characters to trim
  * @return      Trimmed text
  */
 function _trimLeadingCharacters(str: string, chars: string[]): string {
-	const reg = new RegExp(`^(${chars.join("|")})+`, "gm");
+	const LIST_CHARACTERS = ["\\*", "\\-", "\\+", "\\d\\."];
+	const listCharacterRegex = `(?!\\s*(${LIST_CHARACTERS.join("|")}))`;
+
+	const reg = new RegExp(`^(${chars.join("|")})+${listCharacterRegex}`, "gm");
 	return str.replace(reg, "");
 }
 
