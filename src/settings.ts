@@ -19,6 +19,22 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 		});
 
 		new Setting(containerEl)
+			.setName("Trim on Manual Save")
+			.setDesc(
+				"Trim the document during manual save (CTRL / CMD + S)."
+			)
+			.addToggle((toggle) => {
+				toggle
+					.setValue(this.plugin.settings.TrimOnSave)
+					.onChange(async (value) => {
+						this.plugin.settings.TrimOnSave = value;
+						await this.plugin.saveSettings();
+
+						this.plugin._toggleListenerEvent(value);
+					});
+			});
+
+		new Setting(containerEl)
 			.setName("Auto-Trim")
 			.setDesc(
 				"Automatically trim document when modified, according to the settings below."
@@ -60,13 +76,13 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Skip Code Blocks")
-			.setDesc("Whether to ignore code blocks when trimming whitespace.")
+			.setName("Preserve Code Blocks")
+			.setDesc("Whether to preserve whitespace within code blocks.")
 			.addToggle((toggle) => {
 				toggle
-					.setValue(this.plugin.settings.SkipCodeBlocks)
+					.setValue(this.plugin.settings.PreserveCodeBlocks)
 					.onChange(async (value) => {
-						this.plugin.settings.SkipCodeBlocks = value;
+						this.plugin.settings.PreserveCodeBlocks = value;
 						await this.plugin.saveSettings();
 					});
 			});
@@ -120,6 +136,18 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 		});
 
 		new Setting(containerEl)
+		.setName("Preserve Indented Lists")
+		.setDesc("Preserve leading characters if they're used for list indentation.")
+		.addToggle((toggle) => {
+			toggle
+				.setValue(this.plugin.settings.PreserveIndentedLists)
+				.onChange(async (value) => {
+					this.plugin.settings.PreserveIndentedLists = value;
+					await this.plugin.saveSettings();
+				});
+		});
+
+		new Setting(containerEl)
 			.setName("Trim Leading Spaces")
 			.setDesc("Trim spaces at the start of each line.")
 			.addToggle((toggle) => {
@@ -156,7 +184,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		containerEl.createEl("h3", {
-			text: "Mutiple Characters",
+			text: "Multiple Characters",
 		});
 
 		new Setting(containerEl)

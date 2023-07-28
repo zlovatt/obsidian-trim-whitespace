@@ -11,10 +11,13 @@ import { TrimWhitespaceSettingTab } from "./settings";
 import handleTextTrim from "./utils/trimText";
 
 const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
+	TrimOnSave: true,
+
 	AutoTrimDocument: true,
 	AutoTrimTimeout: 2.5,
 
-	SkipCodeBlocks: true,
+	PreserveCodeBlocks: true,
+	PreserveIndentedLists: true,
 
 	TrimTrailingSpaces: true,
 	TrimLeadingSpaces: false,
@@ -30,10 +33,10 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 };
 
 enum TrimTrigger {
-    Command,
-    Save,
-    AutoTrim
-};
+	Command,
+	Save,
+	AutoTrim,
+}
 
 export default class TrimWhitespace extends Plugin {
 	settings: TrimWhitespaceSettings;
@@ -83,7 +86,7 @@ export default class TrimWhitespace extends Plugin {
 
 		if (typeof save === "function") {
 			saveCommandDefinition.callback = () => {
-				if (this.settings.AutoTrimDocument) {
+				if (this.settings.TrimOnSave) {
 					this.trimDocument(TrimTrigger.Save);
 				}
 
@@ -195,9 +198,9 @@ export default class TrimWhitespace extends Plugin {
 		const toCursor = editor.getCursor("to");
 		const toCursorOffset = editor.posToOffset(toCursor);
 
-		let trimmed: string = "";
-		let fromNewOffset: number = 0;
-		let toNewOffset: number = 0;
+		let trimmed = "";
+		let fromNewOffset = 0;
+		let toNewOffset = 0;
 
 		if (causedBy == TrimTrigger.AutoTrim) {
 			// When auto-trimming, do not modify whitespace immediately before
@@ -213,7 +216,9 @@ export default class TrimWhitespace extends Plugin {
 			// Separate the after text into leading whitespace and text
 			const afterText1 = afterText.trimStart();
 			const afterText0 = afterText.substr(
-				0, afterText.length - afterText1.length);
+				0,
+				afterText.length - afterText1.length
+			);
 
 			const beforeTrimmed =
 				handleTextTrim(beforeText0, this.settings) + beforeText1;
@@ -227,20 +232,20 @@ export default class TrimWhitespace extends Plugin {
 
 			const fullyTrimmed = handleTextTrim(input, this.settings);
 			if (trimmed != fullyTrimmed) {
-				this.debouncedTrim();  // keep the debouncer cycling till done
+				this.debouncedTrim(); // keep the debouncer cycling till done
 			}
-
 		} else {
 			// Some fuckery to get start and end cursor positions when
 			// trimming the whole document; Not ideal at all, but need to
 			// figure out how much to shift head and tail independently
 			const fromBeforeText = input.slice(0, fromCursorOffset);
 			const fromBeforeTrimmed = handleTextTrim(
-				fromBeforeText, this.settings);
+				fromBeforeText,
+				this.settings
+			);
 			fromNewOffset = fromBeforeTrimmed.length;
 			const toBeforeText = input.slice(0, toCursorOffset);
-			const toBeforeTrimmed = handleTextTrim(
-				toBeforeText, this.settings);
+			const toBeforeTrimmed = handleTextTrim(toBeforeText, this.settings);
 			toNewOffset = toBeforeTrimmed.length;
 
 			trimmed = handleTextTrim(input, this.settings);
