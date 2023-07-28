@@ -38,6 +38,7 @@ const ALL_FALSE: TrimWhitespaceSettings = {
 	AutoTrimTimeout: 99,
 
 	SkipCodeBlocks: false,
+	PreserveIndentedLists: false,
 
 	TrimTrailingSpaces: false,
 	TrimLeadingSpaces: false,
@@ -89,6 +90,31 @@ function _trimTrailingLines(input: string): string {
 	return handleTextTrim(input, settings);
 }
 
+function _trimLeadingSpacesTabsPreserveLists(input: string): string {
+	const settings: TrimWhitespaceSettings = {
+		...ALL_FALSE,
+		TrimLeadingSpaces: true,
+		TrimLeadingTabs: true,
+		PreserveIndentedLists: true,
+	};
+	return handleTextTrim(input, settings);
+}
+function _trimLeadingSpacesPreserveLists(input: string): string {
+	const settings: TrimWhitespaceSettings = {
+		...ALL_FALSE,
+		TrimLeadingSpaces: true,
+		PreserveIndentedLists: true,
+	};
+	return handleTextTrim(input, settings);
+}
+function _trimLeadingTabsPreserveLists(input: string): string {
+	const settings: TrimWhitespaceSettings = {
+		...ALL_FALSE,
+		TrimLeadingTabs: true,
+		PreserveIndentedLists: true,
+	};
+	return handleTextTrim(input, settings);
+}
 function _trimLeadingSpacesTabs(input: string): string {
 	const settings: TrimWhitespaceSettings = {
 		...ALL_FALSE,
@@ -305,23 +331,44 @@ describe("trimming leading characters", () => {
 		expect(_trimLeadingSpaces(input)).toEqual(trimmed);
 		expect(_trimLeadingTabs(input)).toEqual(input); // not trimmed!
 	});
-	test("leading lists with tabs to not trim", () => {
+	test("leading lists with tabs to not trim if preserveIndentedLists enabled", () => {
 		const input = _mkText().replace(/^/gm, "\t\t* ");
 		const trimmed = _mkText().replace(/^/gm, "\t\t* ");
-		expect(_trimLeadingSpacesTabs(input)).toEqual(trimmed);
-		expect(_trimLeadingSpaces(input)).toEqual(trimmed);
-		expect(_trimLeadingTabs(input)).toEqual(input); // not trimmed!
+		expect(_trimLeadingSpacesTabsPreserveLists(input)).toEqual(trimmed);
+		expect(_trimLeadingSpacesPreserveLists(input)).toEqual(input); // not trimmed!
+		expect(_trimLeadingTabsPreserveLists(input)).toEqual(trimmed);
 	});
-	test("leading lists with spaces to not trim", () => {
+	test("leading lists with spaces to not trim if preserveIndentedLists enabled", () => {
 		const input = _mkText().replace(/^/gm, "        * ");
 		const trimmed = _mkText().replace(/^/gm, "        * ");
+		expect(_trimLeadingSpacesTabsPreserveLists(input)).toEqual(trimmed);
+		expect(_trimLeadingSpacesPreserveLists(input)).toEqual(trimmed);
+		expect(_trimLeadingTabsPreserveLists(input)).toEqual(input); // not trimmed!
+	});
+	test("leading ordered lists with spaces to not trim if preserveIndentedLists enabled", () => {
+		const input = _mkText().replace(/^/gm, "        1. ");
+		const trimmed = _mkText().replace(/^/gm, "        1. ");
+		expect(_trimLeadingSpacesTabsPreserveLists(input)).toEqual(trimmed);
+		expect(_trimLeadingSpacesPreserveLists(input)).toEqual(trimmed);
+		expect(_trimLeadingTabsPreserveLists(input)).toEqual(input); // not trimmed!
+	});
+	test("leading lists with tabs to trim if preserveIndentedLists disabled", () => {
+		const input = _mkText().replace(/^/gm, "\t\t* ");
+		const trimmed = _mkText().replace(/^/gm, "* ");
+		expect(_trimLeadingSpacesTabs(input)).toEqual(trimmed);
+		expect(_trimLeadingSpaces(input)).toEqual(input); // not trimmed!
+		expect(_trimLeadingTabs(input)).toEqual(trimmed);
+	});
+	test("leading lists with spaces to trim if preserveIndentedLists disabled", () => {
+		const input = _mkText().replace(/^/gm, "        * ");
+		const trimmed = _mkText().replace(/^/gm, "* ");
 		expect(_trimLeadingSpacesTabs(input)).toEqual(trimmed);
 		expect(_trimLeadingSpaces(input)).toEqual(trimmed);
 		expect(_trimLeadingTabs(input)).toEqual(input); // not trimmed!
 	});
-	test("leading ordered lists with spaces to not trim", () => {
+	test("leading ordered lists with spaces to trim if preserveIndentedLists disabled", () => {
 		const input = _mkText().replace(/^/gm, "        1. ");
-		const trimmed = _mkText().replace(/^/gm, "        1. ");
+		const trimmed = _mkText().replace(/^/gm, "1. ");
 		expect(_trimLeadingSpacesTabs(input)).toEqual(trimmed);
 		expect(_trimLeadingSpaces(input)).toEqual(trimmed);
 		expect(_trimLeadingTabs(input)).toEqual(input); // not trimmed!

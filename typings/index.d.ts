@@ -3,6 +3,7 @@ interface TrimWhitespaceSettings {
 	AutoTrimTimeout: number;
 
 	SkipCodeBlocks: boolean;
+	PreserveIndentedLists: boolean;
 
 	TrimTrailingSpaces: boolean;
 	TrimLeadingSpaces: boolean;

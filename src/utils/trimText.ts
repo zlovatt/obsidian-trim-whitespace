@@ -30,16 +30,19 @@ function _trimTrailingLines(str: string): string {
 /** Leading */
 
 /**
- * Trims leading characters at start of each line,
- * unless the indent is followed by a list indication character (*, -, +, or digits)
+ * Trims leading characters at start of each line.
  *
- * @param str   Text to trim
- * @param chars Characters to trim
- * @return      Trimmed text
+ * If preserveIndentedLists is true, this preserves leading space if
+ * followed by a list indication character (*, -, +, or digits)
+ *
+ * @param str                   Text to trim
+ * @param chars                 Characters to trim
+ * @param preserveIndentedLists Whether to preserve indented lists
+ * @return                      Trimmed text
  */
-function _trimLeadingCharacters(str: string, chars: string[]): string {
+function _trimLeadingCharacters(str: string, chars: string[], preserveIndentedLists: boolean): string {
 	const LIST_CHARACTERS = ["\\*", "\\-", "\\+", "\\d\\."];
-	const listCharacterRegex = `(?!\\s*(${LIST_CHARACTERS.join("|")}))`;
+	const listCharacterRegex = preserveIndentedLists ? `(?!\\s*(${LIST_CHARACTERS.join("|")}))` : "";
 
 	const reg = new RegExp(`^(${chars.join("|")})+${listCharacterRegex}`, "gm");
 	return str.replace(reg, "");
@@ -147,7 +150,9 @@ function trimText(
 			leadingCharacters.push(CHAR_TAB);
 		}
 
-		trimmed = _trimLeadingCharacters(trimmed, leadingCharacters);
+		const preserveIndentedLists = options.PreserveIndentedLists;
+
+		trimmed = _trimLeadingCharacters(trimmed, leadingCharacters, preserveIndentedLists);
 	}
 
 	if (options.TrimLeadingLines) {
