@@ -63,7 +63,7 @@ function replaceSwappedTokens(
 ): string {
 	terms.forEach((term, ii) => {
 		const token = `{{${prefix}${ii.toString()}}}`;
-		text = text.replace(token, term);
+		text = decodeURIComponent(text.replace(token, encodeURIComponent(term)));
 	});
 
 	return text;

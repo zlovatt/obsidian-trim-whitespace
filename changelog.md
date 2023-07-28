@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 - Trimming of indented lists ([\#9](https://github.com/zlovatt/obsidian-trim-whitespace/issues/9))
 - Plugin not loading on iOS (thanks @velebit!) ([\#14](https://github.com/zlovatt/obsidian-trim-whitespace/issues/14))
 - Typo in settings ([\#16](https://github.com/zlovatt/obsidian-trim-whitespace/issues/16))
+- Issue trimming code blocks containing template literals ([\#17](https://github.com/zlovatt/obsidian-trim-whitespace/issues/17))
 
 ---
 
