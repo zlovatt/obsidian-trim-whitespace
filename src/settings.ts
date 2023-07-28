@@ -19,6 +19,22 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 		});
 
 		new Setting(containerEl)
+			.setName("Trim on Manual Save")
+			.setDesc(
+				"Trim the document during manual save (CTRL / CMD + S)."
+			)
+			.addToggle((toggle) => {
+				toggle
+					.setValue(this.plugin.settings.TrimOnSave)
+					.onChange(async (value) => {
+						this.plugin.settings.TrimOnSave = value;
+						await this.plugin.saveSettings();
+
+						this.plugin._toggleListenerEvent(value);
+					});
+			});
+
+		new Setting(containerEl)
 			.setName("Auto-Trim")
 			.setDesc(
 				"Automatically trim document when modified, according to the settings below."

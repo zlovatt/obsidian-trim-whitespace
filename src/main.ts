@@ -11,6 +11,8 @@ import { TrimWhitespaceSettingTab } from "./settings";
 import handleTextTrim from "./utils/trimText";
 
 const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
+	TrimOnSave: true,
+
 	AutoTrimDocument: true,
 	AutoTrimTimeout: 2.5,
 
@@ -78,7 +80,10 @@ export default class TrimWhitespace extends Plugin {
 
 		if (typeof save === "function") {
 			saveCommandDefinition.callback = () => {
-				this.trimDocument();
+				if (this.settings.TrimOnSave) {
+					this.trimDocument();
+				}
+
 				save();
 			};
 		}

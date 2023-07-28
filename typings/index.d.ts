@@ -1,4 +1,6 @@
 interface TrimWhitespaceSettings {
+	TrimOnSave: boolean;
+
 	AutoTrimDocument: boolean;
 	AutoTrimTimeout: number;
 
