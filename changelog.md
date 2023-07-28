@@ -12,9 +12,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 - Jest test suite (thanks @velebit!)
 - Setting to preserve leading characters if part of an indented list
+- Setting to control whether `CTRL/CMD + S` trims document
 
 ### Changed
 
+- Trimming via `CTRL/CMD + S` no longer requires Auto-Trim to be enabled ([\#12](https://github.com/zlovatt/obsidian-trim-whitespace/issues/12))
 - "Skip Code Blocks" setting name to "Preserve Code Blocks"
 
 ### Fixed

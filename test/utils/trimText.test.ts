@@ -34,6 +34,8 @@ voluptatem.${trailing}`;
 }
 
 const ALL_FALSE: TrimWhitespaceSettings = {
+	TrimOnSave: false,
+
 	AutoTrimDocument: false,
 	AutoTrimTimeout: 99,
 
