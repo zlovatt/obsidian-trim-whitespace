@@ -185,7 +185,7 @@ export default function handleTextTrim(
 	settings: TrimWhitespaceSettings
 ): string {
 	let terms: string[] = [];
-	const skipCodeBlocks = settings.SkipCodeBlocks;
+	const skipCodeBlocks = settings.PreserveCodeBlocks;
 
 	const CODE_SWAP_PREFIX = "TRIM_WHITESPACE_REPLACE_";
 	const CODE_SWAP_REGEX = [

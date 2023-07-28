@@ -2,7 +2,7 @@ interface TrimWhitespaceSettings {
 	AutoTrimDocument: boolean;
 	AutoTrimTimeout: number;
 
-	SkipCodeBlocks: boolean;
+	PreserveCodeBlocks: boolean;
 	PreserveIndentedLists: boolean;
 
 	TrimTrailingSpaces: boolean;
