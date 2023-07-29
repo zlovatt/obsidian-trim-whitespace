@@ -107,6 +107,7 @@ function _trimMultipleTabs(str: string): string {
 function _trimMultipleLines(str: string): string {
 	return str.replace(
 		/(?<=[^\r\n])[\r\n]+?(?=(?:\r?\n\r?\n|\r\r)[^\r\n])/gm,
+		// /^\s+(?=(\n|\r|$))/gm,
 		""
 	);
 }
