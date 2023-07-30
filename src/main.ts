@@ -227,10 +227,6 @@ export default class TrimWhitespace extends Plugin {
 		// const pre = input.slice(0, fromCursorOffset.start);
 		// const current = input.slice(fromCursorOffset.start, toCursorOffset.end);
 		// const post = input.slice(toCursorOffset.end);
-		// console.log('pre:', pre.replace(/ /gm, "•").replace(/\n|\r/gm, "↩"));
-		// console.log('current:', current.replace(/ /gm, "•").replace(/\n|\r/gm, "↩"));
-		// console.log('post:', post.replace(/ /gm, "•").replace(/\n|\r/gm, "↩"));
-		// console.log("fromDelta | toDelta", fromDelta, toDelta);
 
 		let trimmed = "";
 		let fromNewOffset = 0;
@@ -248,35 +244,8 @@ export default class TrimWhitespace extends Plugin {
 			const betweenText = input.slice(fromCursorFenceIndices.start, toCursorFenceIndices.end);
 			const afterText = input.slice(toCursorFenceIndices.end);
 
-			console.log('-------');
-
-			console.log('beforeText:', beforeText.replace(/ /gm, "•").replace(/\n|\r/gm, "↩"));
-			console.log('betweenText:', betweenText.replace(/ /gm, "•").replace(/\n|\r/gm, "↩"));
-			console.log('afterText:', afterText.replace(/ /gm, "•").replace(/\n|\r/gm, "↩"));
-
-			console.log('-------');
-
-			// // Separate the before text into text and trailing whitespace
-			// const beforeText0 = beforeText.trimEnd();
-			// const beforeText1 = beforeText.substr(beforeText0.length);
-			// // Separate the after text into leading whitespace and text
-			// const afterText1 = afterText.trimStart();
-			// const afterText0 = afterText.substr(
-			// 	0,
-			// 	afterText.length - afterText1.length
-			// );
-
-			// console.log('beforeText0:', beforeText0.replace(/ /gm, "•").replace(/\n|\r/gm, "↩"));
-			// console.log('beforeText1:', beforeText1.replace(/ /gm, "•").replace(/\n|\r/gm, "↩"));
-
-			// const beforeTrimmed2 = handleTextTrim(beforeText0, this.settings) + beforeText1;
 			const beforeTrimmed = handleTextTrim(beforeText, this.settings);
 			const afterTrimmed = handleTextTrim(afterText, this.settings);
-
-			console.log('beforeTrimmed:', beforeTrimmed.replace(/ /gm, "•").replace(/\n|\r/gm, "↩"));
-			console.log('afterTrimmed:', afterTrimmed.replace(/ /gm, "•").replace(/\n|\r/gm, "↩"));
-			console.log('-------');
-			console.log('\n\n\n');
 
 			/////// z: this 'get new offset' logic seems good
 			fromNewOffset = fromCursorOffset - beforeText.length + beforeTrimmed.length;
@@ -323,7 +292,7 @@ export default class TrimWhitespace extends Plugin {
 		);
 
 		function getCursorFenceIndices(input: string, cursorOffset: number) {
-			const CODE_BLOCK_REG = /\s?```([\s\S]+?)```\s?/gm;
+			const CODE_BLOCK_REG = /(?:\s?)```([\s\S]+?)```(?:\s?)/gm;
 			const WHITESPACE_BLOCK_REG = /\s+/gm;
 
 			const cursorRange = {start: cursorOffset, end: cursorOffset};
@@ -331,8 +300,9 @@ export default class TrimWhitespace extends Plugin {
 			const cursorCodeBlockIndices = getRegexBlockStartEndIndices(input, cursorOffset, CODE_BLOCK_REG);
 
 			if (cursorCodeBlockIndices.isInFence) {
-				cursorRange.start = cursorCodeBlockIndices.start;
-				cursorRange.end = cursorCodeBlockIndices.end;
+				// Offset by 1 to account for the wrapping newlines around valid code fences
+				cursorRange.start = cursorCodeBlockIndices.start - 1;
+				cursorRange.end = cursorCodeBlockIndices.end + 1;
 			} else {
 				const cursorWhiteSpaceIndices = getRegexBlockStartEndIndices(input, cursorOffset, WHITESPACE_BLOCK_REG);
 
@@ -384,7 +354,7 @@ export default class TrimWhitespace extends Plugin {
 				const rangeStart = match.index;
 				const rangeEnd = rangeStart + match[0].length;
 
-				return currentIndex > rangeStart && currentIndex < rangeEnd;
+				return currentIndex >= rangeStart && currentIndex <= rangeEnd;
 			});
 
 			// ztodo: can we remove this?
