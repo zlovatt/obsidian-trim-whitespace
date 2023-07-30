@@ -28,18 +28,6 @@ function getStringBlockStartEndIndices(
 		return null;
 	}
 
-	const firstMatch = matches[0];
-	const lastMatch = matches[matches.length - 1];
-
-	// If the current index is before the first match's index, or after the last match, we're already good
-	// ztodo: This may not be necessary.....
-	if (
-		position < firstMatch.index ||
-		position > lastMatch.index + lastMatch[0].length
-	) {
-		return null;
-	}
-
 	// Find the fence that contains the index
 	const containingFence = matches.find((match) => {
 		const rangeStart = match.index;
@@ -48,13 +36,12 @@ function getStringBlockStartEndIndices(
 		return position >= rangeStart && position <= rangeEnd;
 	});
 
-	// ztodo: can we remove this?
 	// If we're between fences but not actually in one, get out
 	if (!containingFence) {
 		return null;
 	}
 
-	// Finally, we must be in a fence
+	// Finally, we must be in a fence; get the boundaries
 	return {
 		start: containingFence.index,
 		end: containingFence.index + containingFence[0].length,
