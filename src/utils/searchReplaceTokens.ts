@@ -63,7 +63,12 @@ function replaceSwappedTokens(
 ): string {
 	terms.forEach((term, ii) => {
 		const token = `{{${prefix}${ii.toString()}}}`;
-		text = text.replace(token, term);
+
+		const termIdx = text.indexOf(token);
+		const preTerm = text.substring(0, termIdx);
+		const postTerm = text.substring(termIdx + token.length);
+
+		text = preTerm + term + postTerm;
 	});
 
 	return text;

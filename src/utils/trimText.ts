@@ -30,14 +30,21 @@ function _trimTrailingLines(str: string): string {
 /** Leading */
 
 /**
- * Trims leading characters at start of each line
+ * Trims leading characters at start of each line.
  *
- * @param str   Text to trim
- * @param chars Characters to trim
- * @return      Trimmed text
+ * If preserveIndentedLists is true, this preserves leading space if
+ * followed by a list indication character (*, -, +, or digits)
+ *
+ * @param str                   Text to trim
+ * @param chars                 Characters to trim
+ * @param preserveIndentedLists Whether to preserve indented lists
+ * @return                      Trimmed text
  */
-function _trimLeadingCharacters(str: string, chars: string[]): string {
-	const reg = new RegExp(`^(${chars.join("|")})+`, "gm");
+function _trimLeadingCharacters(str: string, chars: string[], preserveIndentedLists: boolean): string {
+	const LIST_CHARACTERS = ["\\*", "\\-", "\\+", "\\d\\."];
+	const listCharacterRegex = preserveIndentedLists ? `(?!\\s*(${LIST_CHARACTERS.join("|")}))` : "";
+
+	const reg = new RegExp(`^(${chars.join("|")})+${listCharacterRegex}`, "gm");
 	return str.replace(reg, "");
 }
 
@@ -60,7 +67,16 @@ function _trimLeadingLines(str: string): string {
  * @return    Trimmed text
  */
 function _trimMultipleSpaces(str: string): string {
-	return str.replace(/(?<!(\||^)\s*)( ){2,}(?!\s*(\||$))/gm, " ");
+	for (;;) {
+		const next = str.replace(
+			/([^|\n \t](?:[ \t]*\t)?) {2,}(?=(?:\t[ \t]*)?[^|\n \t])/gm,
+			"$1 "
+		);
+		if (next == str) {
+			return str;
+		}
+		str = next;
+	}
 }
 
 /**
@@ -70,7 +86,16 @@ function _trimMultipleSpaces(str: string): string {
  * @return    Trimmed text
  */
 function _trimMultipleTabs(str: string): string {
-	return str.replace(/(?<!(\||^)\s*)(\t){2,}(?!\s*(\||$))/gm, "\t");
+	for (;;) {
+		const next = str.replace(
+			/([^|\n \t](?:[ \t]* )?)\t{2,}(?=(?: [ \t]*)?[^|\n \t])/gm,
+			"$1\t"
+		);
+		if (next == str) {
+			return str;
+		}
+		str = next;
+	}
 }
 
 /**
@@ -80,7 +105,11 @@ function _trimMultipleTabs(str: string): string {
  * @return    Trimmed text
  */
 function _trimMultipleLines(str: string): string {
-	return str.replace(/^\s+(?=(\n|\r|$))/gm, "");
+	return str.replace(
+		// /(?<=[^\r\n])[\r\n]+?(?=(?:\r?\n\r?\n|\r\r)[^\r\n])/gm,
+		/^\s+(?=(\n|\r|$))/gm,
+		""
+	);
 }
 
 /**
@@ -125,7 +154,9 @@ function trimText(
 			leadingCharacters.push(CHAR_TAB);
 		}
 
-		trimmed = _trimLeadingCharacters(trimmed, leadingCharacters);
+		const preserveIndentedLists = options.PreserveIndentedLists;
+
+		trimmed = _trimLeadingCharacters(trimmed, leadingCharacters, preserveIndentedLists);
 	}
 
 	if (options.TrimLeadingLines) {
@@ -158,12 +189,13 @@ export default function handleTextTrim(
 	settings: TrimWhitespaceSettings
 ): string {
 	let terms: string[] = [];
-	const skipCodeBlocks = settings.SkipCodeBlocks;
+	const skipCodeBlocks = settings.PreserveCodeBlocks;
 
 	const CODE_SWAP_PREFIX = "TRIM_WHITESPACE_REPLACE_";
 	const CODE_SWAP_REGEX = [
-		new RegExp(/```([\s\S]+?)```/gm), // markdown code fences
-		new RegExp(/`([\s\S]+?)`/gm), // markdown code inline
+		// new RegExp(/`{3}([\s\S]+?)`{3}/gm), // markdown code fences
+		// new RegExp(/`{1}([\s\S]+?)`{1}/gm), // markdown code inline
+		new RegExp(/(`+)([\s\S]+?)\1/gm) // WIP improvement for arbitrary code blocks
 	];
 
 	if (skipCodeBlocks) {
