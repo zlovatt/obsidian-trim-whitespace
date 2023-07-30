@@ -95,6 +95,12 @@ To install, either:
 
 ---
 
+### Contribution
+
+Want to help develop or maintain this plugin? Please do! PRs and input extremely welcome!
+
+---
+
 ### Credit Due
 
 - Community interest sparked by [this forum post](https://forum.obsidian.md/t/trim-trailing-whitespace/17047)
