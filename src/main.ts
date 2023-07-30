@@ -181,31 +181,10 @@ export default class TrimWhitespace extends Plugin {
 		);
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	/**
 	 * Trims whitespace in document
 	 */
 	trimDocument(causedBy: TrimTrigger): void {
-		// console.clear();
 		const editor = this._getEditor();
 
 		if (!editor) {
@@ -214,97 +193,66 @@ export default class TrimWhitespace extends Plugin {
 
 		const input = editor.getValue();
 
+		// Get 'from' cursor, snapping to nearest code fence or whitespace block
 		const fromCursor = editor.getCursor("from");
 		const fromCursorOffset = editor.posToOffset(fromCursor);
 		const fromCursorFenceIndices = getCursorFenceIndices(input, fromCursorOffset);
 
+		// Get 'to' cursor, snapping to nearest code fence or whitespace block
 		const toCursor = editor.getCursor("to");
 		const toCursorOffset = editor.posToOffset(toCursor);
 		const toCursorFenceIndices = getCursorFenceIndices(input, toCursorOffset);
 
-		// ZACK NOTE
-		// for the 'between text' can we get the nearest fences and get everything between them?
-		// const pre = input.slice(0, fromCursorOffset.start);
-		// const current = input.slice(fromCursorOffset.start, toCursorOffset.end);
-		// const post = input.slice(toCursorOffset.end);
+		// Get and trim the text before the cursor
+		const textBeforeCursor = input.slice(0, fromCursorFenceIndices.start);
+		const textBeforeCursorTrimmed = handleTextTrim(textBeforeCursor, this.settings);
 
-		let trimmed = "";
-		let fromNewOffset = 0;
-		let toNewOffset = 0;
+		// Get the active text, where the cursor is
+		const textAtCursor = input.slice(fromCursorFenceIndices.start, toCursorFenceIndices.end);
 
-		// ztodo: do we need to have separate logic for auto-trim?
-		// the intention is that this will skip current active block, vs other won't
-		// but maybe the logic can be shared in some way?
-		// if we do need it... move the 'get fence indices' logic here, vs shared context above
-		if (causedBy == TrimTrigger.AutoTrim) {
-			// When auto-trimming, do not modify whitespace immediately before
-			// the cursor/selection, within the selection, or immediately
-			// after the cursor/selection.
-			const beforeText = input.slice(0, fromCursorFenceIndices.start);
-			const betweenText = input.slice(fromCursorFenceIndices.start, toCursorFenceIndices.end);
-			const afterText = input.slice(toCursorFenceIndices.end);
+		// Get and trim the text after the cursor
+		const textAfterCursor = input.slice(toCursorFenceIndices.end);
+		const textAfterCursorTrimmed = handleTextTrim(textAfterCursor, this.settings);
 
-			const beforeTrimmed = handleTextTrim(beforeText, this.settings);
-			const afterTrimmed = handleTextTrim(afterText, this.settings);
-
-			/////// z: this 'get new offset' logic seems good
-			fromNewOffset = fromCursorOffset - beforeText.length + beforeTrimmed.length;
-			// const afterTextForOffset = input.slice(0, toCursorFenceIndices.end);
-			// const afterTextForOffsetTrimmed = handleTextTrim(afterTextForOffset, this.settings);
-			toNewOffset = toCursorOffset - beforeText.length + beforeTrimmed.length;
-			/////// ^^^
-
-			// this trimming logic is good too
-			trimmed = beforeTrimmed + betweenText + afterTrimmed;
-
-			/////// z: we may not need the below
-			// const fullyTrimmed = handleTextTrim(input, this.settings);
-			// if (trimmed != fullyTrimmed) {
-			// 	this.debouncedTrim(); // keep the debouncer cycling till done
-			// }
-			/////// z: ^^
-		} else {
-			// Some fuckery to get start and end cursor positions when
-			// trimming the whole document; Not ideal at all, but need to
-			// figure out how much to shift head and tail independently
-			const fromBeforeText = input.slice(0, fromCursorOffset);
-			const fromBeforeTrimmed = handleTextTrim(
-				fromBeforeText,
-				this.settings
-			);
-			fromNewOffset = fromBeforeTrimmed.length;
-			const toBeforeText = input.slice(0, toCursorOffset);
-			const toBeforeTrimmed = handleTextTrim(toBeforeText, this.settings);
-			toNewOffset = toBeforeTrimmed.length;
-
-			trimmed = handleTextTrim(input, this.settings);
-		}
+		// Concatenate the trimmed and current text blocks
+		const trimmed = textBeforeCursorTrimmed + textAtCursor + textAfterCursorTrimmed;
 
 		// Only process if text is different
 		if (trimmed == input) {
 			return;
 		}
 
+		// Calculate new selection offsets
+		const newFromCursorOffset = fromCursorOffset - textBeforeCursor.length + textBeforeCursorTrimmed.length;
+		const newToCursorOffset = toCursorOffset - textBeforeCursor.length + textBeforeCursorTrimmed.length;
+
 		editor.setValue(trimmed);
 		editor.setSelection(
-			editor.offsetToPos(fromNewOffset),
-			editor.offsetToPos(toNewOffset)
+			editor.offsetToPos(newFromCursorOffset),
+			editor.offsetToPos(newToCursorOffset)
 		);
 
-		function getCursorFenceIndices(input: string, cursorOffset: number) {
+		/**
+		 * Gets start and end ranges of a code fence or whitespace block
+		 * that the cursor offset position is within
+		 *
+		 * @param str          String to get start/end fences in
+		 * @param cursorOffset Cursor position to get fence locations from
+		 * @return             Start/end block indices
+		 */
+		function getCursorFenceIndices(str: string, cursorOffset: number) {
 			const CODE_BLOCK_REG = /(?:\s?)```([\s\S]+?)```(?:\s?)/gm;
 			const WHITESPACE_BLOCK_REG = /\s+/gm;
 
 			const cursorRange = {start: cursorOffset, end: cursorOffset};
-
-			const cursorCodeBlockIndices = getRegexBlockStartEndIndices(input, cursorOffset, CODE_BLOCK_REG);
+			const cursorCodeBlockIndices = getStringBlockStartEndIndices(str, cursorOffset, CODE_BLOCK_REG);
 
 			if (cursorCodeBlockIndices.isInFence) {
 				// Offset by 1 to account for the wrapping newlines around valid code fences
 				cursorRange.start = cursorCodeBlockIndices.start - 1;
 				cursorRange.end = cursorCodeBlockIndices.end + 1;
 			} else {
-				const cursorWhiteSpaceIndices = getRegexBlockStartEndIndices(input, cursorOffset, WHITESPACE_BLOCK_REG);
+				const cursorWhiteSpaceIndices = getStringBlockStartEndIndices(str, cursorOffset, WHITESPACE_BLOCK_REG);
 
 				if (cursorWhiteSpaceIndices.isInFence) {
 					cursorRange.start = cursorWhiteSpaceIndices.start;
@@ -315,21 +263,35 @@ export default class TrimWhitespace extends Plugin {
 			return cursorRange;
 		}
 
-
-		function getRegexBlockStartEndIndices(string: string, currentIndex: number, regex: RegExp) {
+		/**
+		 * Checks whether the character in the string at a given position
+		 * falls into a block of text detected by a given regex.
+		 *
+		 * Returns an object with the start/end indices of that block as well as
+		 * info on whether the character is in a block at all/
+		 *
+		 * @todo We can infer isInFence if we initialize start/end to -1
+		 * @todo strip 'nearest'
+		 *
+		 * @param str      String to search within
+		 * @param position Character position to start search from
+		 * @param regex    RegExp to use to detect block
+		 * @return         Indices data
+		 */
+		function getStringBlockStartEndIndices(str: string, position: number, regex: RegExp) {
 			const indices = {
-				start: currentIndex,
-				end: currentIndex,
-				nearest: currentIndex,
+				start: position,
+				end: position,
+				nearest: position,
 				isInFence: false,
 			};
 
 			const matches = [];
-			let match = regex.exec(string);
+			let match = regex.exec(str);
 
 			while (match) {
 				matches.push(match);
-				match = regex.exec(string);
+				match = regex.exec(str);
 			}
 
 			// If there are no code fences, just get the index
@@ -343,8 +305,8 @@ export default class TrimWhitespace extends Plugin {
 			// If the current index is before the first match's index, or after the last match, we're already good
 			// ztodo: This may not be necessary.....
 			if (
-				currentIndex < firstMatch.index ||
-				currentIndex > lastMatch.index + lastMatch[0].length
+				position < firstMatch.index ||
+				position > lastMatch.index + lastMatch[0].length
 			) {
 				return indices;
 			}
@@ -354,7 +316,7 @@ export default class TrimWhitespace extends Plugin {
 				const rangeStart = match.index;
 				const rangeEnd = rangeStart + match[0].length;
 
-				return currentIndex >= rangeStart && currentIndex <= rangeEnd;
+				return position >= rangeStart && position <= rangeEnd;
 			});
 
 			// ztodo: can we remove this?
@@ -370,7 +332,7 @@ export default class TrimWhitespace extends Plugin {
 
 			// Between the start and end, get the value that's nearest to the current index
 			// ztodo: do we need nearest?
-			indices.nearest = (Math.abs(indices.start - currentIndex) < Math.abs(indices.end - currentIndex) ? indices.start : indices.end);
+			indices.nearest = (Math.abs(indices.start - position) < Math.abs(indices.end - position) ? indices.start : indices.end);
 
 			return indices;
 		}
