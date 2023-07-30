@@ -33,6 +33,12 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimMultipleLines: false,
 };
 
+enum TrimTrigger {
+	Command,
+	Save,
+	AutoTrim,
+}
+
 export default class TrimWhitespace extends Plugin {
 	settings: TrimWhitespaceSettings;
 	debouncedTrim: Debouncer<[]>;
@@ -50,9 +56,9 @@ export default class TrimWhitespace extends Plugin {
 			"Trim whitespace",
 			(evt: MouseEvent) => {
 				if (evt.shiftKey) {
-					this.trimSelection();
+					this.trimSelection(TrimTrigger.Command);
 				} else {
-					this.trimDocument();
+					this.trimDocument(TrimTrigger.Command);
 				}
 			}
 		);
@@ -60,13 +66,13 @@ export default class TrimWhitespace extends Plugin {
 		this.addCommand({
 			id: "trim-whitespace-selection",
 			name: "Remove whitespace in selection",
-			editorCallback: () => this.trimSelection(),
+			editorCallback: () => this.trimSelection(TrimTrigger.Command),
 		});
 
 		this.addCommand({
 			id: "trim-whitespace-document",
 			name: "Remove whitespace in document",
-			editorCallback: () => this.trimDocument(),
+			editorCallback: () => this.trimDocument(TrimTrigger.Command),
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
@@ -82,7 +88,7 @@ export default class TrimWhitespace extends Plugin {
 		if (typeof save === "function") {
 			saveCommandDefinition.callback = () => {
 				if (this.settings.TrimOnSave) {
-					this.trimDocument();
+					this.trimDocument(TrimTrigger.Save);
 				}
 
 				save();
@@ -113,7 +119,7 @@ export default class TrimWhitespace extends Plugin {
 	 */
 	_initializeDebouncer(delaySeconds: number): void {
 		this.debouncedTrim = debounce(
-			() => this.trimDocument(),
+			() => this.trimDocument(TrimTrigger.AutoTrim),
 			delaySeconds * 1000,
 			true
 		);
@@ -142,7 +148,7 @@ export default class TrimWhitespace extends Plugin {
 	/**
 	 * Trims whitespace in selected text
 	 */
-	trimSelection(): void {
+	trimSelection(causedBy: TrimTrigger): void {
 		const editor = this._getEditor();
 
 		if (!editor) {
@@ -179,7 +185,7 @@ export default class TrimWhitespace extends Plugin {
 	/**
 	 * Trims whitespace in document
 	 */
-	trimDocument(): void {
+	trimDocument(causedBy: TrimTrigger): void {
 		const editor = this._getEditor();
 
 		if (!editor) {
@@ -188,38 +194,89 @@ export default class TrimWhitespace extends Plugin {
 
 		const input = editor.getValue();
 
-		// Get 'from' cursor, snapping to nearest code fence or whitespace block
 		const fromCursor = editor.getCursor("from");
 		const fromCursorOffset = editor.posToOffset(fromCursor);
-		const fromCursorFenceIndices = getCursorFenceIndices(input, fromCursorOffset, this.settings.PreserveCodeBlocks);
 
-		// Get 'to' cursor, snapping to nearest code fence or whitespace block
 		const toCursor = editor.getCursor("to");
 		const toCursorOffset = editor.posToOffset(toCursor);
-		const toCursorFenceIndices = getCursorFenceIndices(input, toCursorOffset, this.settings.PreserveCodeBlocks);
 
-		// Get and trim the text before the cursor
-		const textBeforeCursor = input.slice(0, fromCursorFenceIndices.start);
-		const textBeforeCursorTrimmed = handleTextTrim(textBeforeCursor, this.settings);
+		let trimmed;
+		let newFromCursorOffset = fromCursorOffset;
+		let newToCursorOffset = toCursorOffset;
 
-		// Get the active text, where the cursor is
-		const textAtCursor = input.slice(fromCursorFenceIndices.start, toCursorFenceIndices.end);
+		if (causedBy == TrimTrigger.AutoTrim) {
+			// Get 'from' cursor, snapping to nearest code fence or whitespace block
+			const fromCursorFenceIndices = getCursorFenceIndices(
+				input,
+				fromCursorOffset,
+				this.settings.PreserveCodeBlocks
+			);
 
-		// Get and trim the text after the cursor
-		const textAfterCursor = input.slice(toCursorFenceIndices.end);
-		const textAfterCursorTrimmed = handleTextTrim(textAfterCursor, this.settings);
+			// Get 'to' cursor, snapping to nearest code fence or whitespace block
+			const toCursorFenceIndices = getCursorFenceIndices(
+				input,
+				toCursorOffset,
+				this.settings.PreserveCodeBlocks
+			);
 
-		// Concatenate the trimmed and current text blocks
-		const trimmed = textBeforeCursorTrimmed + textAtCursor + textAfterCursorTrimmed;
+			// Get and trim the text before the cursor
+			const textBeforeCursor = input.slice(
+				0,
+				fromCursorFenceIndices.start
+			);
+			const textBeforeCursorTrimmed = handleTextTrim(
+				textBeforeCursor,
+				this.settings
+			);
+
+			// Get the active text, where the cursor is
+			const textAtCursor = input.slice(
+				fromCursorFenceIndices.start,
+				toCursorFenceIndices.end
+			);
+
+			// Get and trim the text after the cursor
+			const textAfterCursor = input.slice(toCursorFenceIndices.end);
+			const textAfterCursorTrimmed = handleTextTrim(
+				textAfterCursor,
+				this.settings
+			);
+
+			// Concatenate the trimmed and current text blocks
+			trimmed =
+				textBeforeCursorTrimmed + textAtCursor + textAfterCursorTrimmed;
+
+			// Calculate new selection offsets
+			newFromCursorOffset =
+				fromCursorOffset -
+				textBeforeCursor.length +
+				textBeforeCursorTrimmed.length;
+			newToCursorOffset =
+				toCursorOffset -
+				textBeforeCursor.length +
+				textBeforeCursorTrimmed.length;
+		} else {
+			trimmed = handleTextTrim(input, this.settings);
+
+			// Some tedium to calculate new selection start/end values
+			const fromBeforeText = input.slice(0, fromCursorOffset);
+			const fromBeforeTrimmed = handleTextTrim(
+				fromBeforeText,
+				this.settings
+			);
+
+			const toBeforeText = input.slice(0, toCursorOffset);
+			const toBeforeTrimmed = handleTextTrim(toBeforeText, this.settings);
+
+			// Calculate new selection offsets
+			newFromCursorOffset = fromBeforeTrimmed.length;
+			newToCursorOffset = toBeforeTrimmed.length;
+		}
 
 		// Only process if text is different
 		if (trimmed == input) {
 			return;
 		}
-
-		// Calculate new selection offsets
-		const newFromCursorOffset = fromCursorOffset - textBeforeCursor.length + textBeforeCursorTrimmed.length;
-		const newToCursorOffset = toCursorOffset - textBeforeCursor.length + textBeforeCursorTrimmed.length;
 
 		editor.setValue(trimmed);
 		editor.setSelection(
