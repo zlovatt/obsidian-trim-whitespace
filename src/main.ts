@@ -191,12 +191,12 @@ export default class TrimWhitespace extends Plugin {
 		// Get 'from' cursor, snapping to nearest code fence or whitespace block
 		const fromCursor = editor.getCursor("from");
 		const fromCursorOffset = editor.posToOffset(fromCursor);
-		const fromCursorFenceIndices = getCursorFenceIndices(input, fromCursorOffset);
+		const fromCursorFenceIndices = getCursorFenceIndices(input, fromCursorOffset, this.settings.PreserveCodeBlocks);
 
 		// Get 'to' cursor, snapping to nearest code fence or whitespace block
 		const toCursor = editor.getCursor("to");
 		const toCursorOffset = editor.posToOffset(toCursor);
-		const toCursorFenceIndices = getCursorFenceIndices(input, toCursorOffset);
+		const toCursorFenceIndices = getCursorFenceIndices(input, toCursorOffset, this.settings.PreserveCodeBlocks);
 
 		// Get and trim the text before the cursor
 		const textBeforeCursor = input.slice(0, fromCursorFenceIndices.start);

@@ -52,41 +52,51 @@ function getStringBlockStartEndIndices(
  * Gets start and end ranges of a code fence or whitespace block
  * that the cursor offset position is within
  *
- * @param str          String to get start/end fences in
- * @param cursorOffset Cursor position to get fence locations from
- * @return             Start/end block indices
+ * @param str                String to get start/end fences in
+ * @param cursorOffset       Cursor position to get fence locations from
+ * @param preserveCodeBlocks Whether to preserve code blocks
+ * @return                   Start/end block indices
  */
 export default function getCursorFenceIndices(
 	str: string,
-	cursorOffset: number
+	cursorOffset: number,
+	preserveCodeBlocks: boolean
 ): { start: number; end: number } {
 	const CODE_BLOCK_REG = /(?:\s?)```([\s\S]+?)```(?:\s?)/gm;
 	const WHITESPACE_BLOCK_REG = /\s+/gm;
 
-	const cursorRange = { start: cursorOffset, end: cursorOffset };
-
-	const cursorCodeBlockIndices = getStringBlockStartEndIndices(
-		str,
-		cursorOffset,
-		CODE_BLOCK_REG
-	);
-
-	if (cursorCodeBlockIndices) {
-		// Offset by 1 to account for the wrapping newlines around valid code fences
-		cursorRange.start = cursorCodeBlockIndices.start - 1;
-		cursorRange.end = cursorCodeBlockIndices.end + 1;
-	} else {
-		const cursorWhiteSpaceIndices = getStringBlockStartEndIndices(
+	// Check code blocks, if applicable
+	if (preserveCodeBlocks) {
+		const cursorCodeBlockIndices = getStringBlockStartEndIndices(
 			str,
 			cursorOffset,
-			WHITESPACE_BLOCK_REG
+			CODE_BLOCK_REG
 		);
 
-		if (cursorWhiteSpaceIndices) {
-			cursorRange.start = cursorWhiteSpaceIndices.start;
-			cursorRange.end = cursorWhiteSpaceIndices.end;
+		if (cursorCodeBlockIndices) {
+			// Offset by 1 to account for the wrapping newlines around valid code fences
+			return {
+				start: cursorCodeBlockIndices.start - 1,
+				end: cursorCodeBlockIndices.end + 1,
+			}
 		}
 	}
 
-	return cursorRange;
+	const cursorWhiteSpaceIndices = getStringBlockStartEndIndices(
+		str,
+		cursorOffset,
+		WHITESPACE_BLOCK_REG
+	);
+
+	if (cursorWhiteSpaceIndices) {
+		return {
+			start: cursorWhiteSpaceIndices.start,
+			end: cursorWhiteSpaceIndices.end,
+		}
+	}
+
+	return {
+		start: cursorOffset,
+		end: cursorOffset
+	};
 }
