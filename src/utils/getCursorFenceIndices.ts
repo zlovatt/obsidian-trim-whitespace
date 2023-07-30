@@ -76,7 +76,7 @@ export default function getCursorFenceIndices(
 		if (cursorCodeBlockIndices) {
 			// Offset by 1 to account for the wrapping newlines around valid code fences
 			return {
-				start: cursorCodeBlockIndices.start - 1,
+				start: Math.max(cursorCodeBlockIndices.start - 1, 0),
 				end: cursorCodeBlockIndices.end + 1,
 			}
 		}
