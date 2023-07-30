@@ -33,12 +33,6 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimMultipleLines: false,
 };
 
-enum TrimTrigger {
-	Command,
-	Save,
-	AutoTrim,
-}
-
 export default class TrimWhitespace extends Plugin {
 	settings: TrimWhitespaceSettings;
 	debouncedTrim: Debouncer<[]>;
@@ -58,7 +52,7 @@ export default class TrimWhitespace extends Plugin {
 				if (evt.shiftKey) {
 					this.trimSelection();
 				} else {
-					this.trimDocument(TrimTrigger.Command);
+					this.trimDocument();
 				}
 			}
 		);
@@ -72,7 +66,7 @@ export default class TrimWhitespace extends Plugin {
 		this.addCommand({
 			id: "trim-whitespace-document",
 			name: "Remove whitespace in document",
-			editorCallback: () => this.trimDocument(TrimTrigger.Command),
+			editorCallback: () => this.trimDocument(),
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
@@ -88,7 +82,7 @@ export default class TrimWhitespace extends Plugin {
 		if (typeof save === "function") {
 			saveCommandDefinition.callback = () => {
 				if (this.settings.TrimOnSave) {
-					this.trimDocument(TrimTrigger.Save);
+					this.trimDocument();
 				}
 
 				save();
@@ -119,7 +113,7 @@ export default class TrimWhitespace extends Plugin {
 	 */
 	_initializeDebouncer(delaySeconds: number): void {
 		this.debouncedTrim = debounce(
-			() => this.trimDocument(TrimTrigger.AutoTrim),
+			() => this.trimDocument(),
 			delaySeconds * 1000,
 			true
 		);
@@ -185,7 +179,7 @@ export default class TrimWhitespace extends Plugin {
 	/**
 	 * Trims whitespace in document
 	 */
-	trimDocument(causedBy: TrimTrigger): void {
+	trimDocument(): void {
 		const editor = this._getEditor();
 
 		if (!editor) {
