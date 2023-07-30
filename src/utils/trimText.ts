@@ -193,8 +193,9 @@ export default function handleTextTrim(
 
 	const CODE_SWAP_PREFIX = "TRIM_WHITESPACE_REPLACE_";
 	const CODE_SWAP_REGEX = [
-		new RegExp(/```([\s\S]+?)```/gm), // markdown code fences
-		new RegExp(/`([\s\S]+?)`/gm), // markdown code inline
+		// new RegExp(/`{3}([\s\S]+?)`{3}/gm), // markdown code fences
+		// new RegExp(/`{1}([\s\S]+?)`{1}/gm), // markdown code inline
+		new RegExp(/(`+)([\s\S]+?)\1/gm) // WIP improvement for arbitrary code blocks
 	];
 
 	if (skipCodeBlocks) {
