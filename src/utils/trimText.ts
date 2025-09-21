@@ -40,9 +40,15 @@ function _trimTrailingLines(str: string): string {
  * @param preserveIndentedLists Whether to preserve indented lists
  * @return                      Trimmed text
  */
-function _trimLeadingCharacters(str: string, chars: string[], preserveIndentedLists: boolean): string {
+function _trimLeadingCharacters(
+	str: string,
+	chars: string[],
+	preserveIndentedLists: boolean,
+): string {
 	const LIST_CHARACTERS = ["\\*", "\\-", "\\+", "\\d\\."];
-	const listCharacterRegex = preserveIndentedLists ? `(?!\\s*(${LIST_CHARACTERS.join("|")}))` : "";
+	const listCharacterRegex = preserveIndentedLists
+		? `(?!\\s*(${LIST_CHARACTERS.join("|")}))`
+		: "";
 
 	const reg = new RegExp(`^(${chars.join("|")})+${listCharacterRegex}`, "gm");
 	return str.replace(reg, "");
@@ -70,7 +76,7 @@ function _trimMultipleSpaces(str: string): string {
 	for (;;) {
 		const next = str.replace(
 			/([^|\n \t](?:[ \t]*\t)?) {2,}(?=(?:\t[ \t]*)?[^|\n \t])/gm,
-			"$1 "
+			"$1 ",
 		);
 		if (next == str) {
 			return str;
@@ -89,7 +95,7 @@ function _trimMultipleTabs(str: string): string {
 	for (;;) {
 		const next = str.replace(
 			/([^|\n \t](?:[ \t]* )?)\t{2,}(?=(?: [ \t]*)?[^|\n \t])/gm,
-			"$1\t"
+			"$1\t",
 		);
 		if (next == str) {
 			return str;
@@ -108,7 +114,7 @@ function _trimMultipleLines(str: string): string {
 	return str.replace(
 		// /(?<=[^\r\n])[\r\n]+?(?=(?:\r?\n\r?\n|\r\r)[^\r\n])/gm,
 		/^\s+(?=(\n|\r|$))/gm,
-		""
+		"",
 	);
 }
 
@@ -119,10 +125,7 @@ function _trimMultipleLines(str: string): string {
  * @param options Preferences to control trimming
  * @return        Trimmed string
  */
-function trimText(
-	text: string,
-	options: TrimWhitespaceSettings
-): string {
+function trimText(text: string, options: TrimWhitespaceSettings): string {
 	let trimmed = text;
 	const CHAR_SPACE = " ";
 	const CHAR_TAB = "\t";
@@ -156,7 +159,11 @@ function trimText(
 
 		const preserveIndentedLists = options.PreserveIndentedLists;
 
-		trimmed = _trimLeadingCharacters(trimmed, leadingCharacters, preserveIndentedLists);
+		trimmed = _trimLeadingCharacters(
+			trimmed,
+			leadingCharacters,
+			preserveIndentedLists,
+		);
 	}
 
 	if (options.TrimLeadingLines) {
@@ -186,7 +193,7 @@ function trimText(
  */
 export default function handleTextTrim(
 	text: string,
-	settings: TrimWhitespaceSettings
+	settings: TrimWhitespaceSettings,
 ): string {
 	let terms: string[] = [];
 	const skipCodeBlocks = settings.PreserveCodeBlocks;
@@ -195,14 +202,14 @@ export default function handleTextTrim(
 	const CODE_SWAP_REGEX = [
 		// new RegExp(/`{3}([\s\S]+?)`{3}/gm), // markdown code fences
 		// new RegExp(/`{1}([\s\S]+?)`{1}/gm), // markdown code inline
-		new RegExp(/(`+)([\s\S]+?)\1/gm) // WIP improvement for arbitrary code blocks
+		new RegExp(/(`+)([\s\S]+?)\1/gm), // WIP improvement for arbitrary code blocks
 	];
 
 	if (skipCodeBlocks) {
 		const swapData = buildTokenReplaceMap(
 			text,
 			CODE_SWAP_PREFIX,
-			CODE_SWAP_REGEX
+			CODE_SWAP_REGEX,
 		);
 		text = swapData.text;
 		terms = swapData.terms;
