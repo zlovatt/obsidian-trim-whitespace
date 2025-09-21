@@ -22,7 +22,7 @@ The plugin operates on three different types of whitespace, with three different
 
 Trim whitespace at the **end** of each line, or open document.
 
-|                      Before                       |                After                |
+| Before                                            | After                               |
 | ------------------------------------------------- | ----------------------------------- |
 | <pre>Hello·World!····</pre>                       | <pre>Hello·World!</pre>             |
 | <pre>Hello·World!→→→</pre>                        | <pre>Hello·World!</pre>             |
@@ -32,17 +32,17 @@ Trim whitespace at the **end** of each line, or open document.
 
 Trim whitespace at the **start** of each line, or open document.
 
-  |                    Before                     |                After                |
-  | --------------------------------------------- | ----------------------------------- |
-  | <pre>····Hello·World!</pre>                   | <pre>Hello·World!</pre>             |
-  | <pre>→→→Hello·World!</pre>                    | <pre>Hello·World!</pre>             |
-  | <pre>¬<br>¬<br># Hello¬<br>¬<br>World!¬</pre> | <pre># Hello¬<br>¬<br>World!¬</pre> |
+| Before                                        | After                               |
+| --------------------------------------------- | ----------------------------------- |
+| <pre>····Hello·World!</pre>                   | <pre>Hello·World!</pre>             |
+| <pre>→→→Hello·World!</pre>                    | <pre>Hello·World!</pre>             |
+| <pre>¬<br>¬<br># Hello¬<br>¬<br>World!¬</pre> | <pre># Hello¬<br>¬<br>World!¬</pre> |
 
 #### Multiple
 
 Trim groups of whitespace (2 or more consecutive **inline** spaces/tabs, or **consecutive lines**)
 
-|                       Before                       |                After                |
+| Before                                             | After                               |
 | -------------------------------------------------- | ----------------------------------- |
 | <pre>Hello···World!</pre>                          | <pre>Hello·World!</pre>             |
 | <pre>Hello→→→World!</pre>                          | <pre>Hello→World!</pre>             |
@@ -52,8 +52,8 @@ Trim groups of whitespace (2 or more consecutive **inline** spaces/tabs, or **co
 
 ## Commands
 
-* **Trim whitespace in document** trims all whitespace in the active document, according to the settings below
-* **Trim whitespace in selection** trims all whitespace in the selected region in the active document, according to the settings below
+- **Trim whitespace in document** trims all whitespace in the active document, according to the settings below
+- **Trim whitespace in selection** trims all whitespace in the selected region in the active document, according to the settings below
 
 Trim Whitespace also adds a ribbon button to trim document whitespace. Hold **shift** when clicking the button to trim whitespace in selection instead.
 
@@ -61,7 +61,7 @@ Trim Whitespace also adds a ribbon button to trim document whitespace. Hold **sh
 
 ## Settings
 
-|          Name           |                                   Description                                   |
+| Name                    | Description                                                                     |
 | ----------------------- | ------------------------------------------------------------------------------- |
 | Trim on Manual Save     | **Manually trim document** with CTRL / CMD + S                                  |
 | Auto-Trim               | **Automatically trim document** when modified, according to the settings below. |

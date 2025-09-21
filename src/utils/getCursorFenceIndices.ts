@@ -13,7 +13,7 @@
 function getStringBlockStartEndIndices(
 	str: string,
 	position: number,
-	regex: RegExp
+	regex: RegExp,
 ): null | { start: number; end: number } {
 	const matches = [];
 	let match = regex.exec(str);
@@ -60,7 +60,7 @@ function getStringBlockStartEndIndices(
 export default function getCursorFenceIndices(
 	str: string,
 	cursorOffset: number,
-	preserveCodeBlocks: boolean
+	preserveCodeBlocks: boolean,
 ): { start: number; end: number } {
 	const CODE_BLOCK_REG = /(?:\s?)```([\s\S]+?)```(?:\s?)/gm;
 	const WHITESPACE_BLOCK_REG = /\s+/gm;
@@ -70,7 +70,7 @@ export default function getCursorFenceIndices(
 		const cursorCodeBlockIndices = getStringBlockStartEndIndices(
 			str,
 			cursorOffset,
-			CODE_BLOCK_REG
+			CODE_BLOCK_REG,
 		);
 
 		if (cursorCodeBlockIndices) {
@@ -78,25 +78,25 @@ export default function getCursorFenceIndices(
 			return {
 				start: Math.max(cursorCodeBlockIndices.start - 1, 0),
 				end: cursorCodeBlockIndices.end + 1,
-			}
+			};
 		}
 	}
 
 	const cursorWhiteSpaceIndices = getStringBlockStartEndIndices(
 		str,
 		cursorOffset,
-		WHITESPACE_BLOCK_REG
+		WHITESPACE_BLOCK_REG,
 	);
 
 	if (cursorWhiteSpaceIndices) {
 		return {
 			start: cursorWhiteSpaceIndices.start,
 			end: cursorWhiteSpaceIndices.end,
-		}
+		};
 	}
 
 	return {
 		start: cursorOffset,
-		end: cursorOffset
+		end: cursorOffset,
 	};
 }
