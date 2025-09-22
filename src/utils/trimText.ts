@@ -1,3 +1,5 @@
+import { EOL } from "node:os";
+
 import {
 	buildTokenReplaceMap,
 	replaceSwappedTokens,
@@ -23,8 +25,11 @@ function _trimTrailingCharacters(str: string, chars: string[]): string {
  * @param str Text to trim
  * @return    Trimmed text
  */
-function _trimTrailingLines(str: string): string {
-	return str.trimEnd();
+function _trimTrailingLines(
+	str: string,
+	options: TrimWhitespaceSettings,
+): string {
+	return str.trimEnd() + EOL.repeat(options.TrailingLinesKeepMax);
 }
 
 /** Leading */
@@ -144,7 +149,7 @@ function trimText(text: string, options: TrimWhitespaceSettings): string {
 	}
 
 	if (options.TrimTrailingLines) {
-		trimmed = _trimTrailingLines(trimmed);
+		trimmed = _trimTrailingLines(trimmed, options);
 	}
 
 	if (options.TrimLeadingSpaces || options.TrimLeadingTabs) {
