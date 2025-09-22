@@ -41,7 +41,7 @@ enum TrimTrigger {
 
 export default class TrimWhitespace extends Plugin {
 	settings: TrimWhitespaceSettings;
-	debouncedTrim: Debouncer<[]>;
+	debouncedTrim: Debouncer<[], void>;
 
 	async onload() {
 		await this.loadSettings();
