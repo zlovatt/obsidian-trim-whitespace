@@ -31,6 +31,8 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimTrailingLines: true,
 	TrimLeadingLines: false,
 	TrimMultipleLines: false,
+
+	TrailingLinesKeepMax: 0,
 };
 
 enum TrimTrigger {
