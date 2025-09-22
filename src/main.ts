@@ -43,6 +43,8 @@ export default class TrimWhitespace extends Plugin {
 	settings: TrimWhitespaceSettings;
 	debouncedTrim: Debouncer<[], void>;
 
+	private lastManualTrim: Date = new Date();
+
 	async onload() {
 		await this.loadSettings();
 
@@ -89,6 +91,7 @@ export default class TrimWhitespace extends Plugin {
 			saveCommandDefinition.callback = () => {
 				if (this.settings.TrimOnSave) {
 					this.trimDocument(TrimTrigger.Save);
+					this.lastManualTrim = new Date();
 				}
 
 				save();
@@ -119,7 +122,15 @@ export default class TrimWhitespace extends Plugin {
 	 */
 	_initializeDebouncer(delaySeconds: number): void {
 		this.debouncedTrim = debounce(
-			() => this.trimDocument(TrimTrigger.AutoTrim),
+			() => {
+				const now = new Date().getTime();
+				const timeSinceManualTrim = now - this.lastManualTrim.getTime();
+				const timeout = this.settings.AutoTrimTimeout * 1000;
+
+				if (timeSinceManualTrim > timeout) {
+					this.trimDocument(TrimTrigger.AutoTrim);
+				}
+			},
 			delaySeconds * 1000,
 			true,
 		);
