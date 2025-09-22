@@ -83,10 +83,10 @@ export default class TrimWhitespace extends Plugin {
 		const saveCommandDefinition = (this.app as any).commands?.commands?.[
 			"editor:save-file"
 		];
-		const save = saveCommandDefinition?.callback;
+		const save = saveCommandDefinition?.checkCallback;
 
 		if (typeof save === "function") {
-			saveCommandDefinition.callback = () => {
+			saveCommandDefinition.checkCallback = () => {
 				if (this.settings.TrimOnSave) {
 					this.trimDocument(TrimTrigger.Save);
 				}
