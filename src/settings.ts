@@ -126,8 +126,35 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.TrimTrailingLines = value;
 						await this.plugin.saveSettings();
+
+						setTimeout(() => this.display(), 100);
 					});
 			});
+
+		this.plugin.settings.TrimTrailingLines &&
+			new Setting(containerEl)
+				.setName("Max lines to keep")
+				.setDesc("How many trailing lines to keep (e.g. POSIX uses 1)")
+				.addText((value) => {
+					value
+						.setValue(
+							this.plugin.settings.TrailingLinesKeepMax.toString(),
+						)
+						.onChange(async (value) => {
+							const textAsNumber = parseFloat(value);
+
+							if (isNaN(textAsNumber)) {
+								new Notice(
+									"Trim Whitespace: Enter a valid number!",
+								);
+								return;
+							}
+
+							this.plugin.settings.TrailingLinesKeepMax =
+								Math.max(0, textAsNumber);
+							await this.plugin.saveSettings();
+						});
+				});
 
 		containerEl.createEl("h3", {
 			text: "Leading Characters",
