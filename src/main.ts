@@ -230,10 +230,11 @@ export default class TrimWhitespace extends Plugin {
 				0,
 				fromCursorFenceIndices.start,
 			);
-			const textBeforeCursorTrimmed = handleTextTrim(
-				textBeforeCursor,
-				this.settings,
-			);
+			const textBeforeCursorTrimmed = handleTextTrim(textBeforeCursor, {
+				...this.settings,
+				// skip adding EOLs when trimming first half of text
+				TrailingLinesKeepMax: 0,
+			});
 
 			// Get the active text, where the cursor is
 			const textAtCursor = input.slice(
