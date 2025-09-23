@@ -121,7 +121,11 @@ export default class TrimWhitespace extends Plugin {
 	 */
 	_initializeDebouncer(delaySeconds: number): void {
 		this.debouncedTrim = debounce(
-			() => this.trimDocument(TrimTrigger.AutoTrim),
+			() => {
+				this._toggleListenerEvent(false);
+				this.trimDocument(TrimTrigger.AutoTrim);
+				this._toggleListenerEvent(true);
+			},
 			delaySeconds * 1000,
 			true,
 		);
