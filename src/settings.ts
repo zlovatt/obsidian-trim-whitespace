@@ -85,6 +85,20 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 					});
 			});
 
+		new Setting(containerEl)
+			.setName("Convert non-breaking spaces")
+			.setDesc(
+				"Whether to convert non-breaking spaces to regular spaces.",
+			)
+			.addToggle((toggle) => {
+				toggle
+					.setValue(this.plugin.settings.ConvertNonBreakingSpaces)
+					.onChange(async (value) => {
+						this.plugin.settings.ConvertNonBreakingSpaces = value;
+						await this.plugin.saveSettings();
+					});
+			});
+
 		containerEl.createEl("h2", {
 			text: "Trimming Rules",
 		});
