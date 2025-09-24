@@ -6,6 +6,7 @@ interface TrimWhitespaceSettings {
 
 	PreserveCodeBlocks: boolean;
 	PreserveIndentedLists: boolean;
+	ConvertNonBreakingSpaces: boolean;
 
 	TrimTrailingSpaces: boolean;
 	TrimLeadingSpaces: boolean;

@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 
 	PreserveCodeBlocks: true,
 	PreserveIndentedLists: true,
+	ConvertNonBreakingSpaces: false,
 
 	TrimTrailingSpaces: true,
 	TrimLeadingSpaces: false,
