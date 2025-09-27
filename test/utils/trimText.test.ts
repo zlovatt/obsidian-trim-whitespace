@@ -41,6 +41,7 @@ const ALL_FALSE: TrimWhitespaceSettings = {
 
 	PreserveCodeBlocks: false,
 	PreserveIndentedLists: false,
+	ConvertNonBreakingSpaces: false,
 
 	TrimTrailingSpaces: false,
 	TrimLeadingSpaces: false,
@@ -88,6 +89,14 @@ function _trimTrailingLines(input: string): string {
 	const settings: TrimWhitespaceSettings = {
 		...ALL_FALSE,
 		TrimTrailingLines: true,
+	};
+	return handleTextTrim(input, settings);
+}
+
+function _convertNonBreakingSpaces(input: string): string {
+	const settings: TrimWhitespaceSettings = {
+		...ALL_FALSE,
+		ConvertNonBreakingSpaces: true,
 	};
 	return handleTextTrim(input, settings);
 }
@@ -651,6 +660,28 @@ describe("trimming multiple lines", () => {
 		//   does not fully remove) leading and training lines.
 		expect(_trimMultipleLines(input)).toEqual(trimmed);
 		expect(_trimMultipleLinesAndTrailingSpacesTabs(input)).toEqual(trimmed);
+	});
+});
+
+describe("conversion of non-breaking space characters", () => {
+	test("convert with no trimming", () => {
+		const input = _mkText({
+			leading: "\u00a0".repeat(5),
+			trailing: "\u00a0".repeat(5),
+			interParagraph: "\u00a0".repeat(5),
+			lineLeading: "\u00a0".repeat(5),
+			lineInternal: "\u00a0".repeat(5),
+			lineTrailing: "\u00a0".repeat(5),
+		});
+		const trimmed = _mkText({
+			leading: " ".repeat(5),
+			trailing: " ".repeat(5),
+			interParagraph: " ".repeat(5),
+			lineLeading: " ".repeat(5),
+			lineInternal: " ".repeat(5),
+			lineTrailing: " ".repeat(5),
+		});
+		expect(_convertNonBreakingSpaces(input)).toEqual(trimmed);
 	});
 });
 
