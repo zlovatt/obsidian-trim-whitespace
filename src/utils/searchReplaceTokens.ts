@@ -13,7 +13,7 @@
 function buildTokenReplaceMap(
 	text: string,
 	prefix: string,
-	regExps: RegExp[]
+	regExps: RegExp[],
 ): TokenReplaceMap {
 	const textCollection = {
 		text: text.toString(),
@@ -59,7 +59,7 @@ function buildTokenReplaceMap(
 function replaceSwappedTokens(
 	text: string,
 	prefix: string,
-	terms: string[]
+	terms: string[],
 ): string {
 	terms.forEach((term, ii) => {
 		const token = `{{${prefix}${ii.toString()}}}`;

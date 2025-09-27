@@ -41,7 +41,7 @@ enum TrimTrigger {
 
 export default class TrimWhitespace extends Plugin {
 	settings: TrimWhitespaceSettings;
-	debouncedTrim: Debouncer<[]>;
+	debouncedTrim: Debouncer<[], void>;
 
 	async onload() {
 		await this.loadSettings();
@@ -60,7 +60,7 @@ export default class TrimWhitespace extends Plugin {
 				} else {
 					this.trimDocument(TrimTrigger.Command);
 				}
-			}
+			},
 		);
 
 		this.addCommand({
@@ -121,7 +121,7 @@ export default class TrimWhitespace extends Plugin {
 		this.debouncedTrim = debounce(
 			() => this.trimDocument(TrimTrigger.AutoTrim),
 			delaySeconds * 1000,
-			true
+			true,
 		);
 	}
 
@@ -138,7 +138,11 @@ export default class TrimWhitespace extends Plugin {
 
 		if (toggle) {
 			this.registerEvent(
-				this.app.workspace.on("editor-change", this.debouncedTrim, this)
+				this.app.workspace.on(
+					"editor-change",
+					this.debouncedTrim,
+					this,
+				),
 			);
 		} else {
 			this.app.workspace.off("editor-change", this.debouncedTrim);
@@ -178,7 +182,7 @@ export default class TrimWhitespace extends Plugin {
 
 		editor.setSelection(
 			editor.offsetToPos(newFrom),
-			editor.offsetToPos(toCursor)
+			editor.offsetToPos(toCursor),
 		);
 	}
 
@@ -209,37 +213,37 @@ export default class TrimWhitespace extends Plugin {
 			const fromCursorFenceIndices = getCursorFenceIndices(
 				input,
 				fromCursorOffset,
-				this.settings.PreserveCodeBlocks
+				this.settings.PreserveCodeBlocks,
 			);
 
 			// Get 'to' cursor, snapping to nearest code fence or whitespace block
 			const toCursorFenceIndices = getCursorFenceIndices(
 				input,
 				toCursorOffset,
-				this.settings.PreserveCodeBlocks
+				this.settings.PreserveCodeBlocks,
 			);
 
 			// Get and trim the text before the cursor
 			const textBeforeCursor = input.slice(
 				0,
-				fromCursorFenceIndices.start
+				fromCursorFenceIndices.start,
 			);
 			const textBeforeCursorTrimmed = handleTextTrim(
 				textBeforeCursor,
-				this.settings
+				this.settings,
 			);
 
 			// Get the active text, where the cursor is
 			const textAtCursor = input.slice(
 				fromCursorFenceIndices.start,
-				toCursorFenceIndices.end
+				toCursorFenceIndices.end,
 			);
 
 			// Get and trim the text after the cursor
 			const textAfterCursor = input.slice(toCursorFenceIndices.end);
 			const textAfterCursorTrimmed = handleTextTrim(
 				textAfterCursor,
-				this.settings
+				this.settings,
 			);
 
 			// Concatenate the trimmed and current text blocks
@@ -262,7 +266,7 @@ export default class TrimWhitespace extends Plugin {
 			const fromBeforeText = input.slice(0, fromCursorOffset);
 			const fromBeforeTrimmed = handleTextTrim(
 				fromBeforeText,
-				this.settings
+				this.settings,
 			);
 
 			const toBeforeText = input.slice(0, toCursorOffset);
@@ -281,7 +285,7 @@ export default class TrimWhitespace extends Plugin {
 		editor.setValue(trimmed);
 		editor.setSelection(
 			editor.offsetToPos(newFromCursorOffset),
-			editor.offsetToPos(newToCursorOffset)
+			editor.offsetToPos(newToCursorOffset),
 		);
 	}
 
@@ -292,7 +296,7 @@ export default class TrimWhitespace extends Plugin {
 		this.settings = Object.assign(
 			{},
 			DEFAULT_SETTINGS,
-			await this.loadData()
+			await this.loadData(),
 		);
 	}
 

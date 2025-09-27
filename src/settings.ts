@@ -20,9 +20,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Trim on Manual Save")
-			.setDesc(
-				"Trim the document during manual save (CTRL / CMD + S)."
-			)
+			.setDesc("Trim the document during manual save (CTRL / CMD + S).")
 			.addToggle((toggle) => {
 				toggle
 					.setValue(this.plugin.settings.TrimOnSave)
@@ -37,7 +35,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Auto-Trim")
 			.setDesc(
-				"Automatically trim document when modified, according to the settings below."
+				"Automatically trim document when modified, according to the settings below.",
 			)
 			.addToggle((toggle) => {
 				toggle
@@ -61,7 +59,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 
 						if (isNaN(textAsNumber)) {
 							new Notice(
-								"Trim Whitespace: Enter a valid number!"
+								"Trim Whitespace: Enter a valid number!",
 							);
 							return;
 						}
@@ -136,16 +134,18 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 		});
 
 		new Setting(containerEl)
-		.setName("Preserve Indented Lists")
-		.setDesc("Preserve leading characters if they're used for list indentation.")
-		.addToggle((toggle) => {
-			toggle
-				.setValue(this.plugin.settings.PreserveIndentedLists)
-				.onChange(async (value) => {
-					this.plugin.settings.PreserveIndentedLists = value;
-					await this.plugin.saveSettings();
-				});
-		});
+			.setName("Preserve Indented Lists")
+			.setDesc(
+				"Preserve leading characters if they're used for list indentation.",
+			)
+			.addToggle((toggle) => {
+				toggle
+					.setValue(this.plugin.settings.PreserveIndentedLists)
+					.onChange(async (value) => {
+						this.plugin.settings.PreserveIndentedLists = value;
+						await this.plugin.saveSettings();
+					});
+			});
 
 		new Setting(containerEl)
 			.setName("Trim Leading Spaces")
