@@ -130,6 +130,11 @@ function trimText(text: string, options: TrimWhitespaceSettings): string {
 	const CHAR_SPACE = " ";
 	const CHAR_TAB = "\t";
 
+	if (options.ConvertNonBreakingSpaces) {
+		// replace all instances of non-breaking spaces with regular spaces
+		trimmed = trimmed.replace(/\u00a0/g, " ");
+	}
+
 	if (options.TrimTrailingSpaces || options.TrimTrailingTabs) {
 		const trailingCharacters = [];
 
