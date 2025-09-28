@@ -6,6 +6,7 @@ interface TrimWhitespaceSettings {
 
 	PreserveCodeBlocks: boolean;
 	PreserveIndentedLists: boolean;
+	ConvertNonBreakingSpaces: boolean;
 
 	TrimTrailingSpaces: boolean;
 	TrimLeadingSpaces: boolean;
@@ -18,6 +19,8 @@ interface TrimWhitespaceSettings {
 	TrimTrailingLines: boolean;
 	TrimLeadingLines: boolean;
 	TrimMultipleLines: boolean;
+
+	TrailingLinesKeepMax: number;
 }
 
 interface TokenReplaceMap {

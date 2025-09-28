@@ -1,3 +1,5 @@
+import { EOL } from "node:os";
+
 import {
 	buildTokenReplaceMap,
 	replaceSwappedTokens,
@@ -23,8 +25,11 @@ function _trimTrailingCharacters(str: string, chars: string[]): string {
  * @param str Text to trim
  * @return    Trimmed text
  */
-function _trimTrailingLines(str: string): string {
-	return str.trimEnd();
+function _trimTrailingLines(
+	str: string,
+	options: TrimWhitespaceSettings,
+): string {
+	return str.trimEnd() + EOL.repeat(options.TrailingLinesKeepMax);
 }
 
 /** Leading */
@@ -130,6 +135,11 @@ function trimText(text: string, options: TrimWhitespaceSettings): string {
 	const CHAR_SPACE = " ";
 	const CHAR_TAB = "\t";
 
+	if (options.ConvertNonBreakingSpaces) {
+		// replace all instances of non-breaking spaces with regular spaces
+		trimmed = trimmed.replace(/\u00a0/g, " ");
+	}
+
 	if (options.TrimTrailingSpaces || options.TrimTrailingTabs) {
 		const trailingCharacters = [];
 
@@ -144,7 +154,7 @@ function trimText(text: string, options: TrimWhitespaceSettings): string {
 	}
 
 	if (options.TrimTrailingLines) {
-		trimmed = _trimTrailingLines(trimmed);
+		trimmed = _trimTrailingLines(trimmed, options);
 	}
 
 	if (options.TrimLeadingSpaces || options.TrimLeadingTabs) {

@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 
 	PreserveCodeBlocks: true,
 	PreserveIndentedLists: true,
+	ConvertNonBreakingSpaces: false,
 
 	TrimTrailingSpaces: true,
 	TrimLeadingSpaces: false,
@@ -31,6 +32,8 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimTrailingLines: true,
 	TrimLeadingLines: false,
 	TrimMultipleLines: false,
+
+	TrailingLinesKeepMax: 0,
 };
 
 enum TrimTrigger {
@@ -83,10 +86,10 @@ export default class TrimWhitespace extends Plugin {
 		const saveCommandDefinition = (this.app as any).commands?.commands?.[
 			"editor:save-file"
 		];
-		const save = saveCommandDefinition?.callback;
+		const save = saveCommandDefinition?.checkCallback;
 
 		if (typeof save === "function") {
-			saveCommandDefinition.callback = () => {
+			saveCommandDefinition.checkCallback = () => {
 				if (this.settings.TrimOnSave) {
 					this.trimDocument(TrimTrigger.Save);
 				}
@@ -119,7 +122,11 @@ export default class TrimWhitespace extends Plugin {
 	 */
 	_initializeDebouncer(delaySeconds: number): void {
 		this.debouncedTrim = debounce(
-			() => this.trimDocument(TrimTrigger.AutoTrim),
+			() => {
+				this._toggleListenerEvent(false);
+				this.trimDocument(TrimTrigger.AutoTrim);
+				this._toggleListenerEvent(true);
+			},
 			delaySeconds * 1000,
 			true,
 		);
@@ -228,10 +235,11 @@ export default class TrimWhitespace extends Plugin {
 				0,
 				fromCursorFenceIndices.start,
 			);
-			const textBeforeCursorTrimmed = handleTextTrim(
-				textBeforeCursor,
-				this.settings,
-			);
+			const textBeforeCursorTrimmed = handleTextTrim(textBeforeCursor, {
+				...this.settings,
+				// skip adding EOLs when trimming first half of text
+				TrailingLinesKeepMax: 0,
+			});
 
 			// Get the active text, where the cursor is
 			const textAtCursor = input.slice(
