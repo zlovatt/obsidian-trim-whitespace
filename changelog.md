@@ -18,7 +18,31 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ### Fixed
 
-- ***
+-
+
+<br/>
+
+---
+
+## [v0.4.0] - 2025/09/28
+
+### Added
+
+- Option for converting non-breaking spaces ([#35](https://github.com/zlovatt/obsidian-trim-whitespace/issues/35))
+- Option for preserving a set amount of lines at the end of the file ([#36](https://github.com/zlovatt/obsidian-trim-whitespace/issues/36))
+
+### Changed
+
+- Development: Formatting of project ([#30](https://github.com/zlovatt/obsidian-trim-whitespace/issues/30))
+- Development: Update project setup ([#31](https://github.com/zlovatt/obsidian-trim-whitespace/issues/31))
+- Development: Updated type signature ([#32](https://github.com/zlovatt/obsidian-trim-whitespace/issues/32))
+- Development: Update release workflow ([#33](https://github.com/zlovatt/obsidian-trim-whitespace/issues/33))
+
+### Fixed
+
+- Trim-on-save was broken after an update to the Obsidian API ([#37](https://github.com/zlovatt/obsidian-trim-whitespace/issues/37))
+
+---
 
 ## [v0.3.0] - 2023/07/30
 
