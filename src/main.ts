@@ -235,11 +235,10 @@ export default class TrimWhitespace extends Plugin {
 				0,
 				fromCursorFenceIndices.start,
 			);
-			const textBeforeCursorTrimmed = handleTextTrim(textBeforeCursor, {
-				...this.settings,
-				// skip adding EOLs when trimming first half of text
-				TrailingLinesKeepMax: 0,
-			});
+			const textBeforeCursorTrimmed = handleTextTrim(
+				textBeforeCursor,
+				this.settings,
+			);
 
 			// Get the active text, where the cursor is
 			const textAtCursor = input.slice(
@@ -290,7 +289,9 @@ export default class TrimWhitespace extends Plugin {
 			return;
 		}
 
-		editor.setValue(trimmed);
+		editor.setValue(
+			trimmed + "\n".repeat(this.settings.TrailingLinesKeepMax),
+		);
 		editor.setSelection(
 			editor.offsetToPos(newFromCursorOffset),
 			editor.offsetToPos(newToCursorOffset),
