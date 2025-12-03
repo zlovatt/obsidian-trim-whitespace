@@ -24,6 +24,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [v0.4.1] - 2025/12/03
+
+### Fixed
+
+- Fix cursor shift ([#41](https://github.com/zlovatt/obsidian-trim-whitespace/issues/41))
+
+---
+
 ## [v0.4.0] - 2025/09/28
 
 ### Added
