@@ -189,9 +189,9 @@ function _trimMultipleLinesKeep3EOLs(input: string): string {
 	const settings: TrimWhitespaceSettings = {
 		...ALL_FALSE,
 		TrimTrailingLines: true,
-		TrailingLinesKeepMax: 3,
+		TrailingLinesKeepMax: 0,
 	};
-	return handleTextTrim(input, settings);
+	return handleTextTrim(input, settings) + "\n".repeat(3);
 }
 function _trimMultipleLinesAndTrailingSpacesTabs(input: string): string {
 	const settings: TrimWhitespaceSettings = {
