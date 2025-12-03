@@ -289,7 +289,9 @@ export default class TrimWhitespace extends Plugin {
 			return;
 		}
 
-		editor.setValue(trimmed);
+		editor.setValue(
+			trimmed + "\n".repeat(this.settings.TrailingLinesKeepMax),
+		);
 		editor.setSelection(
 			editor.offsetToPos(newFromCursorOffset),
 			editor.offsetToPos(newToCursorOffset),
