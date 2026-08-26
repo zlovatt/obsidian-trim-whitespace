@@ -33,6 +33,7 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimLeadingLines: false,
 	TrimMultipleLines: false,
 
+	TrailingLinesKeepMin: 0,
 	TrailingLinesKeepMax: 0,
 };
 
