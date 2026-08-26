@@ -148,8 +148,10 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 
 		this.plugin.settings.TrimTrailingLines &&
 			new Setting(containerEl)
-				.setName("Max lines to keep")
-				.setDesc("How many trailing lines to keep (e.g. POSIX uses 1)")
+				.setName("Number of trailing lines to keep")
+				.setDesc(
+					"How many trailing lines to keep, default 0 (e.g. POSIX uses 1)",
+				)
 				.addText((value) => {
 					value.inputEl.setCssProps({ "max-width": "5rem" });
 					value.inputEl.placeholder = "min";
