@@ -151,18 +151,52 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 				.setName("Max lines to keep")
 				.setDesc("How many trailing lines to keep (e.g. POSIX uses 1)")
 				.addText((value) => {
-					value
-						.setValue(
-							this.plugin.settings.TrailingLinesKeepMax.toString(),
-						)
-						.onChange(async (value) => {
-							parseSettingAsNumber(value).then(async (number) => {
-								this.plugin.settings.TrailingLinesKeepMin =
-									Math.max(0, number);
+					value.inputEl.setCssProps({ "max-width": "5rem" });
+					value.inputEl.placeholder = "min";
+					value.setValue(
+						this.plugin.settings.TrailingLinesKeepMin > 0
+							? this.plugin.settings.TrailingLinesKeepMin.toString()
+							: "",
+					);
+					value.onChange(async (value) => {
+						parseSettingAsNumber(value).then(async (number) => {
+							this.plugin.settings.TrailingLinesKeepMin =
+								Math.max(0, number);
 
-								await this.plugin.saveSettings();
-							});
+							if (
+								this.plugin.settings.TrailingLinesKeepMin >
+								this.plugin.settings.TrailingLinesKeepMax
+							)
+								this.plugin.settings.TrailingLinesKeepMax =
+									this.plugin.settings.TrailingLinesKeepMin;
+
+							await this.plugin.saveSettings();
 						});
+					});
+				})
+				.addText((value) => {
+					value.inputEl.setCssProps({ "max-width": "5rem" });
+					value.inputEl.placeholder = "max";
+					value.setValue(
+						this.plugin.settings.TrailingLinesKeepMax > 0
+							? this.plugin.settings.TrailingLinesKeepMax.toString()
+							: "",
+					);
+					value.onChange(async (value) => {
+						parseSettingAsNumber(value).then(async (number) => {
+							this.plugin.settings.TrailingLinesKeepMax =
+								Math.max(0, number);
+
+							if (
+								this.plugin.settings.TrailingLinesKeepMax <
+								this.plugin.settings.TrailingLinesKeepMin
+							)
+								this.plugin.settings.TrailingLinesKeepMin =
+									this.plugin.settings.TrailingLinesKeepMax;
+
+							await this.plugin.saveSettings();
+						});
+					});
 				});
 
 		containerEl.createEl("h3", {
