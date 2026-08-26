@@ -1,5 +1,6 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import TrimWhitespace from "./main";
+import { parseSettingAsNumber } from "./utils/utils";
 
 export class TrimWhitespaceSettingTab extends PluginSettingTab {
 	plugin: TrimWhitespace;
@@ -155,18 +156,12 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 							this.plugin.settings.TrailingLinesKeepMax.toString(),
 						)
 						.onChange(async (value) => {
-							const textAsNumber = parseFloat(value);
+							parseSettingAsNumber(value).then(async (number) => {
+								this.plugin.settings.TrailingLinesKeepMin =
+									Math.max(0, number);
 
-							if (isNaN(textAsNumber)) {
-								new Notice(
-									"Trim Whitespace: Enter a valid number!",
-								);
-								return;
-							}
-
-							this.plugin.settings.TrailingLinesKeepMax =
-								Math.max(0, textAsNumber);
-							await this.plugin.saveSettings();
+								await this.plugin.saveSettings();
+							});
 						});
 				});
 
