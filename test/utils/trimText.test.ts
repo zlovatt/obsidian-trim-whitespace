@@ -1,4 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
+import { TrimWhitespaceSettings } from "typings";
 import handleTextTrim from "../../src/utils/trimText";
 
 interface TextWhitespace {
@@ -54,6 +55,9 @@ const ALL_FALSE: TrimWhitespaceSettings = {
 	TrimTrailingLines: false,
 	TrimLeadingLines: false,
 	TrimMultipleLines: false,
+
+	TrailingLinesKeepMin: 0,
+	TrailingLinesKeepMax: 0,
 };
 
 function _trimNothing(input: string): string {

@@ -1,4 +1,5 @@
 import { EOL } from "node:os";
+import { TrimWhitespaceSettings } from "typings";
 
 import {
 	buildTokenReplaceMap,

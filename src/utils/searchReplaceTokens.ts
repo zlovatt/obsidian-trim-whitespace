@@ -1,3 +1,5 @@
+import { TokenReplaceMap } from "typings";
+
 /**
  * Cludgey function to:
  * 		- exec regexp on a string

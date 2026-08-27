@@ -16,12 +16,12 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		containerEl.createEl("h2", {
-			text: "General Settings",
+			text: "General settings",
 		});
 
 		new Setting(containerEl)
-			.setName("Trim on Manual Save")
-			.setDesc("Trim the document during manual save (CTRL / CMD + S).")
+			.setName("Trim on manual save")
+			.setDesc("Trim the document during manual save (ctrl / cmd + s).")
 			.addToggle((toggle) => {
 				toggle
 					.setValue(this.plugin.settings.TrimOnSave)
@@ -34,7 +34,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Auto-Trim")
+			.setName("Auto-trim")
 			.setDesc(
 				"Automatically trim document when modified, according to the settings below.",
 			)
@@ -50,7 +50,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Auto-Trim Delay (seconds)")
+			.setName("Auto-trim delay (seconds)")
 			.setDesc("Seconds to wait before auto-trimming.")
 			.addText((value) => {
 				value
@@ -60,7 +60,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 
 						if (isNaN(textAsNumber)) {
 							new Notice(
-								"Trim Whitespace: Enter a valid number!",
+								"Trim whitespace: Enter a valid number!",
 							);
 							return;
 						}
@@ -75,7 +75,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Preserve Code Blocks")
+			.setName("Preserve code blocks")
 			.setDesc("Whether to preserve whitespace within code blocks.")
 			.addToggle((toggle) => {
 				toggle
@@ -101,15 +101,15 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		containerEl.createEl("h2", {
-			text: "Trimming Rules",
+			text: "Trimming rules",
 		});
 
 		containerEl.createEl("h3", {
-			text: "Trailing Characters",
+			text: "Trailing characters",
 		});
 
 		new Setting(containerEl)
-			.setName("Trim Trailing Spaces")
+			.setName("Trim trailing spaces")
 			.setDesc("Trim spaces at the end of each line.")
 			.addToggle((toggle) => {
 				toggle
@@ -121,7 +121,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Trim Trailing Tabs")
+			.setName("Trim trailing tabs")
 			.setDesc("Trim tabs at the end of each line.")
 			.addToggle((toggle) => {
 				toggle
@@ -133,7 +133,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Trim Trailing Lines")
+			.setName("Trim trailing lines")
 			.setDesc("Trim empty lines at the end of the document.")
 			.addToggle((toggle) => {
 				toggle
@@ -142,7 +142,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 						this.plugin.settings.TrimTrailingLines = value;
 						await this.plugin.saveSettings();
 
-						setTimeout(() => this.display(), 100);
+						window.setTimeout(() => this.display(), 100);
 					});
 			});
 
@@ -153,60 +153,74 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 					"How many trailing lines to keep, default 0 (e.g. POSIX uses 1)",
 				)
 				.addText((value) => {
-					value.inputEl.setCssProps({ "max-width": "5rem" });
-					value.inputEl.placeholder = "min";
+					value.inputEl.setCssStyles({ maxWidth: "5rem" });
+					value.inputEl.placeholder = "Min";
 					value.setValue(
 						this.plugin.settings.TrailingLinesKeepMin > 0
 							? this.plugin.settings.TrailingLinesKeepMin.toString()
 							: "",
 					);
 					value.onChange(async (value) => {
-						parseSettingAsNumber(value).then(async (number) => {
-							this.plugin.settings.TrailingLinesKeepMin =
-								Math.max(0, number);
+						parseSettingAsNumber(value)
+							.then(async (number) => {
+								this.plugin.settings.TrailingLinesKeepMin =
+									Math.max(0, number);
 
-							if (
-								this.plugin.settings.TrailingLinesKeepMin >
-								this.plugin.settings.TrailingLinesKeepMax
-							)
-								this.plugin.settings.TrailingLinesKeepMax =
-									this.plugin.settings.TrailingLinesKeepMin;
+								if (
+									this.plugin.settings.TrailingLinesKeepMin >
+									this.plugin.settings.TrailingLinesKeepMax
+								)
+									this.plugin.settings.TrailingLinesKeepMax =
+										this.plugin.settings.TrailingLinesKeepMin;
 
-							await this.plugin.saveSettings();
-						});
+								await this.plugin.saveSettings();
+							})
+							.catch(
+								() =>
+									new Notice(
+										"Trim whitespace: Enter a valid number!",
+									),
+							);
 					});
 				})
 				.addText((value) => {
-					value.inputEl.setCssProps({ "max-width": "5rem" });
-					value.inputEl.placeholder = "max";
+					value.inputEl.setCssStyles({ maxWidth: "5rem" });
+					value.inputEl.placeholder = "Max";
 					value.setValue(
 						this.plugin.settings.TrailingLinesKeepMax > 0
 							? this.plugin.settings.TrailingLinesKeepMax.toString()
 							: "",
 					);
 					value.onChange(async (value) => {
-						parseSettingAsNumber(value).then(async (number) => {
-							this.plugin.settings.TrailingLinesKeepMax =
-								Math.max(0, number);
+						parseSettingAsNumber(value)
+							.then(async (number) => {
+								this.plugin.settings.TrailingLinesKeepMax =
+									Math.max(0, number);
 
-							if (
-								this.plugin.settings.TrailingLinesKeepMax <
-								this.plugin.settings.TrailingLinesKeepMin
-							)
-								this.plugin.settings.TrailingLinesKeepMin =
-									this.plugin.settings.TrailingLinesKeepMax;
+								if (
+									this.plugin.settings.TrailingLinesKeepMax <
+									this.plugin.settings.TrailingLinesKeepMin
+								)
+									this.plugin.settings.TrailingLinesKeepMin =
+										this.plugin.settings.TrailingLinesKeepMax;
 
-							await this.plugin.saveSettings();
-						});
+								await this.plugin.saveSettings();
+							})
+							.catch(
+								() =>
+									new Notice(
+										"Trim whitespace: Enter a valid number!",
+									),
+							);
 					});
 				});
 
 		containerEl.createEl("h3", {
-			text: "Leading Characters",
+			text: "Leading characters",
 		});
 
 		new Setting(containerEl)
-			.setName("Preserve Indented Lists")
+			.setName("Preserve indented lists")
 			.setDesc(
 				"Preserve leading characters if they're used for list indentation.",
 			)
@@ -220,7 +234,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Trim Leading Spaces")
+			.setName("Trim leading spaces")
 			.setDesc("Trim spaces at the start of each line.")
 			.addToggle((toggle) => {
 				toggle
@@ -232,7 +246,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Trim Leading Tabs")
+			.setName("Trim leading tabs")
 			.setDesc("Trim tabs at the start of each line.")
 			.addToggle((toggle) => {
 				toggle
@@ -244,7 +258,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Trim Leading Lines")
+			.setName("Trim leading lines")
 			.setDesc("Trim lines at the start of the document.")
 			.addToggle((toggle) => {
 				toggle
@@ -256,11 +270,11 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		containerEl.createEl("h3", {
-			text: "Multiple Characters",
+			text: "Multiple characters",
 		});
 
 		new Setting(containerEl)
-			.setName("Trim Multiple Spaces")
+			.setName("Trim multiple spaces")
 			.setDesc("Trim groups of multiple inline spaces.")
 			.addToggle((toggle) => {
 				toggle
@@ -272,7 +286,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Trim Multiple Tabs")
+			.setName("Trim multiple tabs")
 			.setDesc("Trim groups of multiple inline tabs.")
 			.addToggle((toggle) => {
 				toggle
@@ -284,7 +298,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Trim Multiple Lines")
+			.setName("Trim multiple lines")
 			.setDesc("Trim groups of multiple blank lines.")
 			.addToggle((toggle) => {
 				toggle
