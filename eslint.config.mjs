@@ -24,6 +24,7 @@ export default defineConfig([
 			"no-prototype-builtins": "off",
 			"@typescript-eslint/no-empty-function": "off",
 			"obsidianmd/settings-tab/no-manual-html-headings": "off",
+			"obsidianmd/settings-tab/prefer-setting-definitions": "off", // TODO: Remove once Settings API is implemented
 		},
 	},
 ]);
