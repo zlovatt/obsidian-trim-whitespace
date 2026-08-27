@@ -18,12 +18,7 @@ export default defineConfig([
 			// example: add a rule not in the recommended set and set its severity
 			// "obsidianmd/rule-custom-message": "off",
 
-			"no-unused-vars": "off",
-			"@typescript-eslint/no-unused-vars": ["error", { args: "none" }],
-			"@typescript-eslint/ban-ts-comment": "off",
-			"no-prototype-builtins": "off",
-			"@typescript-eslint/no-empty-function": "off",
-			"obsidianmd/settings-tab/no-manual-html-headings": "off",
+			"obsidianmd/settings-tab/no-manual-html-headings": "off", // TODO: Remove once Settings API is implemented
 			"obsidianmd/settings-tab/prefer-setting-definitions": "off", // TODO: Remove once Settings API is implemented
 			"obsidianmd/no-nodejs-modules": "off", // TODO: node:os/EOF is only available on desktops, need to figure out EOL styles on iOS and Android
 		},
