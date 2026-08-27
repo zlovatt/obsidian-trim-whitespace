@@ -1,4 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
+import { TrimWhitespaceSettings } from "typings";
 import handleTextTrim from "../../src/utils/trimText";
 
 interface TextWhitespace {

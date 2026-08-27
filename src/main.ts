@@ -11,6 +11,7 @@ import { TrimWhitespaceSettingTab } from "./settings";
 import handleTextTrim from "./utils/trimText";
 import getCursorFenceIndices from "./utils/getCursorFenceIndices";
 import { EOL } from "os";
+import { TrimWhitespaceSettings } from "typings";
 
 const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimOnSave: true,
