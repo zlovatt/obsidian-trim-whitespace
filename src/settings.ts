@@ -142,7 +142,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 						this.plugin.settings.TrimTrailingLines = value;
 						await this.plugin.saveSettings();
 
-						setTimeout(() => this.display(), 100);
+						window.setTimeout(() => this.display(), 100);
 					});
 			});
 
