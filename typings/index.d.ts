@@ -1,4 +1,4 @@
-interface TrimWhitespaceSettings {
+export interface TrimWhitespaceSettings {
 	TrimOnSave: boolean;
 
 	AutoTrimDocument: boolean;
@@ -24,7 +24,17 @@ interface TrimWhitespaceSettings {
 	TrailingLinesKeepMax: number;
 }
 
-interface TokenReplaceMap {
+export interface TokenReplaceMap {
 	text: string;
 	terms: string[];
+}
+
+declare module "obsidian" {
+	interface App {
+		commands: {
+			commands: {
+				"editor:save-file": { checkCallback: () => void };
+			};
+		};
+	}
 }

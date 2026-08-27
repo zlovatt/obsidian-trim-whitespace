@@ -11,6 +11,7 @@ import { TrimWhitespaceSettingTab } from "./settings";
 import handleTextTrim from "./utils/trimText";
 import getCursorFenceIndices from "./utils/getCursorFenceIndices";
 import { EOL } from "os";
+import { TrimWhitespaceSettings } from "typings";
 
 const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimOnSave: true,
@@ -84,11 +85,9 @@ export default class TrimWhitespace extends Plugin {
 		this.addSettingTab(new TrimWhitespaceSettingTab(this.app, this));
 
 		// Highjack ctrl+s
-		// eslint-disable-next-line
-		const saveCommandDefinition = (this.app as any).commands?.commands?.[
-			"editor:save-file"
-		];
-		const save = saveCommandDefinition?.checkCallback;
+		const saveCommandDefinition =
+			this.app.commands.commands["editor:save-file"];
+		const save = saveCommandDefinition.checkCallback;
 
 		if (typeof save === "function") {
 			saveCommandDefinition.checkCallback = () => {
@@ -141,7 +140,7 @@ export default class TrimWhitespace extends Plugin {
 	 */
 	_toggleListenerEvent(toggle: boolean): void {
 		if (!this.debouncedTrim) {
-			new Notice("Trim Whitespace: Can't start auto trimmer!");
+			new Notice("Trim whitespace: Can't start auto trimmer!");
 			return;
 		}
 
@@ -313,7 +312,7 @@ export default class TrimWhitespace extends Plugin {
 		this.settings = Object.assign(
 			{},
 			DEFAULT_SETTINGS,
-			await this.loadData(),
+			(await this.loadData()) as TrimWhitespaceSettings,
 		);
 	}
 
