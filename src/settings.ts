@@ -153,7 +153,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 					"How many trailing lines to keep, default 0 (e.g. POSIX uses 1)",
 				)
 				.addText((value) => {
-					value.inputEl.setCssProps({ "max-width": "5rem" });
+					value.inputEl.setCssStyles({ maxWidth: "5rem" });
 					value.inputEl.placeholder = "Min";
 					value.setValue(
 						this.plugin.settings.TrailingLinesKeepMin > 0
@@ -177,7 +177,7 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 					});
 				})
 				.addText((value) => {
-					value.inputEl.setCssProps({ "max-width": "5rem" });
+					value.inputEl.setCssStyles({ maxWidth: "5rem" });
 					value.inputEl.placeholder = "Max";
 					value.setValue(
 						this.plugin.settings.TrailingLinesKeepMax > 0
