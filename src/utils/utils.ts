@@ -8,7 +8,7 @@ export async function parseSettingAsNumber(value: string) {
 
 	if (isNaN(textAsNumber)) {
 		new Notice("Trim whitespace: Enter a valid number!");
-		throw "Trim whitespace: Enter a valid number!";
+		throw Error("Trim whitespace: Enter a valid number!");
 	}
 
 	return textAsNumber;
