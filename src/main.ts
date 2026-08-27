@@ -141,7 +141,7 @@ export default class TrimWhitespace extends Plugin {
 	 */
 	_toggleListenerEvent(toggle: boolean): void {
 		if (!this.debouncedTrim) {
-			new Notice("Trim Whitespace: Can't start auto trimmer!");
+			new Notice("Trim whitespace: Can't start auto trimmer!");
 			return;
 		}
 

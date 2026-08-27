@@ -7,8 +7,8 @@ export async function parseSettingAsNumber(value: string) {
 	const textAsNumber = parseFloat(value);
 
 	if (isNaN(textAsNumber)) {
-		new Notice("Trim Whitespace: Enter a valid number!");
-		throw "Trim Whitespace: Enter a valid number!";
+		new Notice("Trim whitespace: Enter a valid number!");
+		throw "Trim whitespace: Enter a valid number!";
 	}
 
 	return textAsNumber;
