@@ -28,3 +28,13 @@ export interface TokenReplaceMap {
 	text: string;
 	terms: string[];
 }
+
+declare module "obsidian" {
+	interface App {
+		commands: {
+			commands: {
+				"editor:save-file": { checkCallback: () => void };
+			};
+		};
+	}
+}
