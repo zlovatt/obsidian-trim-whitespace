@@ -1,5 +1,6 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import TrimWhitespace from "./main";
+import { parseSettingAsNumber } from "./utils/utils";
 
 export class TrimWhitespaceSettingTab extends PluginSettingTab {
 	plugin: TrimWhitespace;
@@ -147,27 +148,57 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 
 		this.plugin.settings.TrimTrailingLines &&
 			new Setting(containerEl)
-				.setName("Max lines to keep")
-				.setDesc("How many trailing lines to keep (e.g. POSIX uses 1)")
+				.setName("Number of trailing lines to keep")
+				.setDesc(
+					"How many trailing lines to keep, default 0 (e.g. POSIX uses 1)",
+				)
 				.addText((value) => {
-					value
-						.setValue(
-							this.plugin.settings.TrailingLinesKeepMax.toString(),
-						)
-						.onChange(async (value) => {
-							const textAsNumber = parseFloat(value);
+					value.inputEl.setCssProps({ "max-width": "5rem" });
+					value.inputEl.placeholder = "min";
+					value.setValue(
+						this.plugin.settings.TrailingLinesKeepMin > 0
+							? this.plugin.settings.TrailingLinesKeepMin.toString()
+							: "",
+					);
+					value.onChange(async (value) => {
+						parseSettingAsNumber(value).then(async (number) => {
+							this.plugin.settings.TrailingLinesKeepMin =
+								Math.max(0, number);
 
-							if (isNaN(textAsNumber)) {
-								new Notice(
-									"Trim Whitespace: Enter a valid number!",
-								);
-								return;
-							}
+							if (
+								this.plugin.settings.TrailingLinesKeepMin >
+								this.plugin.settings.TrailingLinesKeepMax
+							)
+								this.plugin.settings.TrailingLinesKeepMax =
+									this.plugin.settings.TrailingLinesKeepMin;
 
-							this.plugin.settings.TrailingLinesKeepMax =
-								Math.max(0, textAsNumber);
 							await this.plugin.saveSettings();
 						});
+					});
+				})
+				.addText((value) => {
+					value.inputEl.setCssProps({ "max-width": "5rem" });
+					value.inputEl.placeholder = "max";
+					value.setValue(
+						this.plugin.settings.TrailingLinesKeepMax > 0
+							? this.plugin.settings.TrailingLinesKeepMax.toString()
+							: "",
+					);
+					value.onChange(async (value) => {
+						parseSettingAsNumber(value).then(async (number) => {
+							this.plugin.settings.TrailingLinesKeepMax =
+								Math.max(0, number);
+
+							if (
+								this.plugin.settings.TrailingLinesKeepMax <
+								this.plugin.settings.TrailingLinesKeepMin
+							)
+								this.plugin.settings.TrailingLinesKeepMin =
+									this.plugin.settings.TrailingLinesKeepMax;
+
+							await this.plugin.saveSettings();
+						});
+					});
 				});
 
 		containerEl.createEl("h3", {

@@ -10,6 +10,7 @@ import {
 import { TrimWhitespaceSettingTab } from "./settings";
 import handleTextTrim from "./utils/trimText";
 import getCursorFenceIndices from "./utils/getCursorFenceIndices";
+import { EOL } from "os";
 
 const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimOnSave: true,
@@ -33,6 +34,7 @@ const DEFAULT_SETTINGS: TrimWhitespaceSettings = {
 	TrimLeadingLines: false,
 	TrimMultipleLines: false,
 
+	TrailingLinesKeepMin: 0,
 	TrailingLinesKeepMax: 0,
 };
 
@@ -289,9 +291,15 @@ export default class TrimWhitespace extends Plugin {
 			return;
 		}
 
-		editor.setValue(
-			trimmed + "\n".repeat(this.settings.TrailingLinesKeepMax),
-		);
+		const options = this.settings;
+
+		if (trimmed.length + options.TrailingLinesKeepMin >= input.length) {
+			trimmed += EOL.repeat(options.TrailingLinesKeepMin);
+		} else {
+			trimmed += EOL.repeat(options.TrailingLinesKeepMax);
+		}
+
+		editor.setValue(trimmed);
 		editor.setSelection(
 			editor.offsetToPos(newFromCursorOffset),
 			editor.offsetToPos(newToCursorOffset),
