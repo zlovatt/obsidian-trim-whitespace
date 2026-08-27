@@ -25,6 +25,7 @@ export default defineConfig([
 			"@typescript-eslint/no-empty-function": "off",
 			"obsidianmd/settings-tab/no-manual-html-headings": "off",
 			"obsidianmd/settings-tab/prefer-setting-definitions": "off", // TODO: Remove once Settings API is implemented
+			"obsidianmd/no-nodejs-modules": "off", // TODO: node:os/EOF is only available on desktops, need to figure out EOL styles on iOS and Android
 		},
 	},
 ]);
