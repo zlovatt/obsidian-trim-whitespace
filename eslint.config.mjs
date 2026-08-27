@@ -23,6 +23,7 @@ export default defineConfig([
 			"@typescript-eslint/ban-ts-comment": "off",
 			"no-prototype-builtins": "off",
 			"@typescript-eslint/no-empty-function": "off",
+			"obsidianmd/settings-tab/no-manual-html-headings": "off",
 		},
 	},
 ]);
