@@ -161,19 +161,26 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 							: "",
 					);
 					value.onChange(async (value) => {
-						parseSettingAsNumber(value).then(async (number) => {
-							this.plugin.settings.TrailingLinesKeepMin =
-								Math.max(0, number);
+						parseSettingAsNumber(value)
+							.then(async (number) => {
+								this.plugin.settings.TrailingLinesKeepMin =
+									Math.max(0, number);
 
-							if (
-								this.plugin.settings.TrailingLinesKeepMin >
-								this.plugin.settings.TrailingLinesKeepMax
-							)
-								this.plugin.settings.TrailingLinesKeepMax =
-									this.plugin.settings.TrailingLinesKeepMin;
+								if (
+									this.plugin.settings.TrailingLinesKeepMin >
+									this.plugin.settings.TrailingLinesKeepMax
+								)
+									this.plugin.settings.TrailingLinesKeepMax =
+										this.plugin.settings.TrailingLinesKeepMin;
 
-							await this.plugin.saveSettings();
-						});
+								await this.plugin.saveSettings();
+							})
+							.catch(
+								() =>
+									new Notice(
+										"Trim whitespace: Enter a valid number!",
+									),
+							);
 					});
 				})
 				.addText((value) => {
@@ -185,19 +192,26 @@ export class TrimWhitespaceSettingTab extends PluginSettingTab {
 							: "",
 					);
 					value.onChange(async (value) => {
-						parseSettingAsNumber(value).then(async (number) => {
-							this.plugin.settings.TrailingLinesKeepMax =
-								Math.max(0, number);
+						parseSettingAsNumber(value)
+							.then(async (number) => {
+								this.plugin.settings.TrailingLinesKeepMax =
+									Math.max(0, number);
 
-							if (
-								this.plugin.settings.TrailingLinesKeepMax <
-								this.plugin.settings.TrailingLinesKeepMin
-							)
-								this.plugin.settings.TrailingLinesKeepMin =
-									this.plugin.settings.TrailingLinesKeepMax;
+								if (
+									this.plugin.settings.TrailingLinesKeepMax <
+									this.plugin.settings.TrailingLinesKeepMin
+								)
+									this.plugin.settings.TrailingLinesKeepMin =
+										this.plugin.settings.TrailingLinesKeepMax;
 
-							await this.plugin.saveSettings();
-						});
+								await this.plugin.saveSettings();
+							})
+							.catch(
+								() =>
+									new Notice(
+										"Trim whitespace: Enter a valid number!",
+									),
+							);
 					});
 				});
 
