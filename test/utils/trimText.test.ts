@@ -55,6 +55,9 @@ const ALL_FALSE: TrimWhitespaceSettings = {
 	TrimTrailingLines: false,
 	TrimLeadingLines: false,
 	TrimMultipleLines: false,
+
+	TrailingLinesKeepMin: 0,
+	TrailingLinesKeepMax: 0,
 };
 
 function _trimNothing(input: string): string {
