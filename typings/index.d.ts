@@ -20,6 +20,7 @@ interface TrimWhitespaceSettings {
 	TrimLeadingLines: boolean;
 	TrimMultipleLines: boolean;
 
+	TrailingLinesKeepMin: number;
 	TrailingLinesKeepMax: number;
 }
 
