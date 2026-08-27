@@ -24,6 +24,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [v0.5.0] - 2026/08/27
+
+### Added
+
+- Extend Lines to keep to work for min and max lines ([#46](https://github.com/zlovatt/obsidian-trim-whitespace/pull/46))
+
+---
+
 ## [v0.4.1] - 2025/12/03
 
 ### Fixed
